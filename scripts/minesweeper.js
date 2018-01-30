@@ -13,6 +13,7 @@ let app = new PIXI.Application({
   }
 );
 
+//const getPos = app.renderer.plugins.interaction.mouse.global;
 
 const mineSweeperAtlas = "images/imgMineSweeper.json";
 
@@ -49,11 +50,21 @@ let buttonStart,
     titleBG,
     textStart;
 
+//All about the play
 let playBG;
+
+//All about the end
+let winText,
+    gameOverLogo,
+    endButtonGroup,
+    buttonRetry,
+    buttonMain;
 
 let titleScene,
     playScene,
     gameOverScene;
+
+let deathTween;
 
 let state;
 let charm = new Charm(PIXI);
@@ -96,6 +107,7 @@ function setup() {
 
 
 function gameLoop() {
+    //console.log(getPos);
     state();
     charm.update();
 }
@@ -119,9 +131,9 @@ function initializeTitle(){
         initializeButton(buttonStart);
         charm.fadeOut(titleScene).onComplete = () => {
             buttonStartContainer.alpha = 0;
-            buttonStart.texture = id[spriteSource[4]];
             titleLogo.alpha = 0;
             titleScene.alpha = 0;
+            buttonStart.texture = id[spriteSource[4]];
             state = play
         };
     };
@@ -177,6 +189,7 @@ function title() {
 }
 
 let testButton;
+let testButton2;
 function initializePlay(){
     playScene = new PIXI.Container();
     playScene.alpha = 0;
@@ -188,13 +201,30 @@ function initializePlay(){
     playScene.addChild(playBG);
     
     testButton = new PIXI.Sprite(id[spriteSource[4]]);
-    playScene.addChild(testButton);
     testButton.interactive = true;
     testButton.on("pointerdown", () => {
-        state = title;
-        playScene.visible = false;
-        
+       state = end; 
+       //deathTween.play();
     });
+    
+    deathTween = charm.slide(playScene, 20, 0, 5, 'smoothstep', true);
+    deathTween.pause();
+    
+    
+    
+
+    
+    testButton2 = new PIXI.Sprite(id[spriteSource[3]]);
+    testButton2.interactive = true;
+    testButton2.position.set(200, 0);
+    testButton2.on("pointerdown", () => {
+       deathTween.pause();
+       playScene.position.set(0,0);
+    });
+    
+    playScene.addChild(testButton);
+    playScene.addChild(testButton2);
+    
     
     playScene.visible = false;
 }
@@ -215,15 +245,51 @@ function play() {
 }
 
 function initializeEnd(){
+    
+    let buttonActionRetry;
+    let buttonActionMain;
+    
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
     
+    gameOverLogo = new PIXI.Sprite(id[spriteSource[5]]);
+    gameOverLogo.position.set(gameWidth/2, gameHeight/2);
+    gameOverLogo.anchor.set(0.5,0.5);
+    gameOverScene.addChild(gameOverLogo);
+
+    buttonActionMain = new PIXI.Sprite(id[spriteSource[4]]);
+    buttonActionMain.anchor.set(0.5,0.5);
+    buttonActionMain.position.set(buttonActionMain.width/2, buttonActionMain.height/2);
+
+    buttonActionRetry = new PIXI.Sprite(id[spriteSource[4]]);
+    buttonActionRetry.anchor.set(0.5,0.5);
+    buttonActionRetry.position.set(buttonActionRetry.width/2, buttonActionRetry.height * 2); 
+    
+    endButtonGroup = new PIXI.Container();
+    endButtonGroup.position.set((gameWidth/2) - (buttonActionMain.width/2), gameHeight/2);
+    gameOverScene.addChild(endButtonGroup);
+
+
+    
+    endButtonGroup.addChild(buttonActionMain);
+    endButtonGroup.addChild(buttonActionRetry);
+    
+
+    
+    
+
+    
+    
+    
     gameOverScene.visible = false;
 }
+
 function end(){
-    titleScene.visible = false;
-    playScene.visible = false;
-    gameOverScene.visible = true
+    if(!gameOverScene.visible) {
+        titleScene.visible = false;
+        gameOverScene.visible = true
+    }
+
 }
 
 
