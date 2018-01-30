@@ -58,7 +58,8 @@ let winText,
     gameOverLogo,
     endButtonGroup,
     buttonRetry,
-    buttonMain;
+    buttonMain,
+    blackBackground;
 
 let titleScene,
     playScene,
@@ -99,6 +100,7 @@ function setup() {
     initializeTitle();
     initializePlay();
     initializeEnd();
+
     
     state = title;
     app.ticker.add(delta => gameLoop())
@@ -252,8 +254,17 @@ function initializeEnd(){
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
     
+    blackBackground = new PIXI.Graphics();
+    blackBackground.drawRect((gameWidth/2) - (playBG.width/2), 
+                             (gameHeight/2) - (playBG.height/2), 
+                             playBG.width, 
+                             playBG.height);
+    blackBackground.fill = 0x000000;
+    blackBackground.alpha = 0.6;
+    gameOverScene.addChild(blackBackground);
+    
     gameOverLogo = new PIXI.Sprite(id[spriteSource[5]]);
-    gameOverLogo.position.set(gameWidth/2, gameHeight/2);
+    gameOverLogo.position.set(gameWidth/2, gameHeight/2 - 130);
     gameOverLogo.anchor.set(0.5,0.5);
     gameOverScene.addChild(gameOverLogo);
 
@@ -266,7 +277,7 @@ function initializeEnd(){
     buttonActionRetry.position.set(buttonActionRetry.width/2, buttonActionRetry.height * 2); 
     
     endButtonGroup = new PIXI.Container();
-    endButtonGroup.position.set((gameWidth/2) - (buttonActionMain.width/2), gameHeight/2);
+    endButtonGroup.position.set((gameWidth/2) - (buttonActionMain.width/2), (gameHeight/2) - 20);
     gameOverScene.addChild(endButtonGroup);
 
 
