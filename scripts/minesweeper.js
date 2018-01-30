@@ -53,8 +53,7 @@ let playBG;
 
 let titleScene,
     playScene,
-    gameOverScene,
-    winScene;
+    gameOverScene;
 
 let state;
 let charm = new Charm(PIXI);
@@ -89,7 +88,6 @@ function setup() {
     initializeTitle();
     initializePlay();
     initializeEnd();
-    initializeWin();
     
     state = title;
     app.ticker.add(delta => gameLoop())
@@ -121,7 +119,9 @@ function initializeTitle(){
         initializeButton(buttonStart);
         charm.fadeOut(titleScene).onComplete = () => {
             buttonStartContainer.alpha = 0;
+            buttonStart.texture = id[spriteSource[4]];
             titleLogo.alpha = 0;
+            titleScene.alpha = 0;
             state = play
         };
     };
@@ -163,25 +163,55 @@ function initializeTitle(){
     buttonStartContainer.addChild(textStart);
     titleScene.addChild(buttonStartContainer);
     
-    charm.fadeIn(titleScene).onComplete = () => 
-    charm.fadeIn(titleLogo).onComplete = () => 
-    charm.fadeIn(buttonStartContainer).onComplete = () => activateButton(buttonStart);
-    
-    titleScene.visible = true;
+    titleScene.visible = false;
 }
 function title() {
-
+    if(!titleScene.visible) {
+        playScene.visible = false;
+        gameOverScene.visible = false;
+        titleScene.visible = true; 
+        charm.fadeIn(titleScene).onComplete = () => 
+        charm.fadeIn(titleLogo).onComplete = () => 
+        charm.fadeIn(buttonStartContainer).onComplete = () => activateButton(buttonStart);
+    }
 }
 
+let testButton;
 function initializePlay(){
     playScene = new PIXI.Container();
+    playScene.alpha = 0;
     app.stage.addChild(playScene);
+    
+    playBG = new PIXI.Sprite(id[spriteSource[6]])
+    playBG.position.set(gameWidth/2, gameHeight/2);
+    playBG.anchor.set(0.5,0.5);
+    playScene.addChild(playBG);
+    
+    testButton = new PIXI.Sprite(id[spriteSource[4]]);
+    playScene.addChild(testButton);
+    testButton.interactive = true;
+    testButton.on("pointerdown", () => {
+        state = title;
+        playScene.visible = false;
+        
+    });
     
     playScene.visible = false;
 }
 
+let timerOn = false;
 function play() {
-    timer();
+    if(!playScene.visible) {
+        titleScene.visible = false;
+        gameOverScene.visible = false
+        playScene.visible = true; 
+        charm.fadeIn(playScene).onComplete = () => {
+            timerOn = true;
+        }
+    }
+    
+    if(timerOn)
+        timer();
 }
 
 function initializeEnd(){
@@ -190,17 +220,10 @@ function initializeEnd(){
     
     gameOverScene.visible = false;
 }
-function end(){}
-
-function initializeWin() {
-    winScene = new PIXI.Container();
-    app.stage.addChild(winScene);
-    
-    winScene.visible = false;
-}
-
-function win() {
-    
+function end(){
+    titleScene.visible = false;
+    playScene.visible = false;
+    gameOverScene.visible = true
 }
 
 
