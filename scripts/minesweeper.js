@@ -158,7 +158,7 @@ function initializeTitle(){
                     buttonStartContainer.x, 
                     buttonStartContainer.y + spriteOffSet)
         .onComplete = () => 
-        charm.fadeOut(titleScene).onComplete = () => {
+        charm.fadeOut(titleScene, 30).onComplete = () => {
             titleLogo.x = gameWidth/2 - spriteOffSet;
             buttonStartContainer.y = gameHeight/2 + spriteOffSet;
             //titleScene.alpha = 0;
@@ -206,7 +206,7 @@ function title() {
         playScene.visible = false;
         gameOverScene.visible = false;
         titleScene.visible = true; 
-        charm.fadeIn(titleScene).onComplete = () => {
+        charm.fadeIn(titleScene, 30).onComplete = () => {
             charm.slide(titleLogo, gameWidth/2, titleLogo.y).onComplete = () => 
             charm.slide(buttonStartContainer, buttonStartContainer.x, gameHeight/2 + 50).onComplete = () => activateButton(buttonStart);
         }
@@ -224,12 +224,11 @@ function initializePlay(){
     playBG = new PIXI.Sprite(id[spriteSource[6]])
     playBG.position.set(gameWidth/2, gameHeight/2);
     playBG.anchor.set(0.5,0.5);
-    //playBG.scale.set(1,1.05)
     playScene.addChild(playBG);
     
 
     
-    deathTween = charm.slide(playScene, 20, 0, 5, 'smoothstep', true);
+    deathTween = charm.slide(playScene, 20, 0, 2, 'smoothstep', true);
     deathTween.pause();
     
     timeText = new PIXI.Text("0:00", textStyle);
@@ -245,7 +244,6 @@ function initializePlay(){
     testButton.interactive = true;
     testButton.on("pointerdown", () => {
        state = end; 
-       //deathTween.play();
     });
     testButton2 = new PIXI.Sprite(id[spriteSource[3]]);
     testButton2.interactive = true;
@@ -327,7 +325,21 @@ function cellOnClick(cell) {
     cell.interactive = true;
     cell.on("pointerup", () => {
        charm.fadeOut(cell, 20); 
+       if(hitBomb(cell)) {
+           deathTween.play();
+           state = end;
+       }
+        
     });
+}
+
+function hitBomb(cell) {
+    for(let i = 0; i < bombArray.length; i++) {
+        if(cell.x == bombArray[i].x && cell.y == bombArray[i].y) {
+            return true;
+        }
+    }
+    return false;
 }
 
 let timerOn = false;
@@ -336,7 +348,7 @@ function play() {
         titleScene.visible = false;
         gameOverScene.visible = false
         playScene.visible = true; 
-        charm.fadeIn(playScene).onComplete = () => {
+        charm.fadeIn(playScene, 20).onComplete = () => {
             timerOn = true;
         }
     }
@@ -431,8 +443,8 @@ function initializeEnd(){
 function resetEndNext(next) {
     console.log("wtf?")
     charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) + spriteOffSet).onComplete = () => {
-        charm.fadeOut(playScene);
-        charm.fadeOut(gameOverScene).onComplete = () => {
+        charm.fadeOut(playScene, 20);
+        charm.fadeOut(gameOverScene, 20).onComplete = () => {
             playScene.visible = false;
             //playScene.alpha = 0;
             timeText.text = "0:00";
@@ -458,6 +470,8 @@ function end(){
         charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y)
         .onComplete = () => {
             charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20);
+            deathTween.pause();
+            playScene.position.set(0,0);
         }
 
 
