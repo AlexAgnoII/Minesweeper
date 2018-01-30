@@ -54,7 +54,8 @@ let buttonStart,
 
 //All about the play
 let playBG,
-    timeText;
+    timeText,
+    bombText;
 
 //All about the end
 let winText,
@@ -228,9 +229,11 @@ function initializePlay(){
     
     timeText = new PIXI.Text("0:00", textStyle);
     timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
-
-
     playScene.addChild(timeText);
+    
+    bombText = new PIXI.Text(bombCount, textStyle);
+    bombText.position.set(gameWidth/2 + 120, timeText.y);
+    playScene.addChild(bombText);
     
     
 
@@ -360,6 +363,7 @@ function resetEndNext(next) {
         charm.fadeOut(gameOverScene).onComplete = () => {
             playScene.visible = false;
             //playScene.alpha = 0;
+            timeText.text = "0:00";
             minuteElapse = 0;
             time = 0;
             ctr = 0;
