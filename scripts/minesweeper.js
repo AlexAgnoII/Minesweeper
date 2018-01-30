@@ -17,7 +17,8 @@ let app = new PIXI.Application({
 
 const mineSweeperAtlas = "images/imgMineSweeper.json";
 const spriteOffSet = 1000;
-const bombCount = 5;
+const bombCount = 10;
+const boardSize = 15;
 
 let id, 
     spriteSource = ["asset_bomb.png",             //0
@@ -31,7 +32,7 @@ let id,
                     "asset_menu_bg.png",          //8
                     "asset_pressed_block.png",    //9
                     "asset_timer_container.png",  //10
-                    "asset_unpressed_block"];     //11
+                    "asset_unpressed_block.png"];     //11
 let bombSprite, 
     bombContainerSprite, 
     buttonDownSprite = [], 
@@ -54,6 +55,8 @@ let buttonStart,
 
 //All about the play
 let playBG,
+    board,
+    boardArray = [],
     timeText,
     bombText;
 
@@ -220,6 +223,7 @@ function initializePlay(){
     playBG = new PIXI.Sprite(id[spriteSource[6]])
     playBG.position.set(gameWidth/2, gameHeight/2);
     playBG.anchor.set(0.5,0.5);
+    playBG.scale.set(1,1.05)
     playScene.addChild(playBG);
     
 
@@ -228,13 +232,12 @@ function initializePlay(){
     deathTween.pause();
     
     timeText = new PIXI.Text("0:00", textStyle);
-    timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
+    timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 170);
     playScene.addChild(timeText);
     
     bombText = new PIXI.Text(bombCount, textStyle);
     bombText.position.set(gameWidth/2 + 120, timeText.y);
     playScene.addChild(bombText);
-    
     
 
     testButton = new PIXI.Sprite(id[spriteSource[4]]);
@@ -254,8 +257,39 @@ function initializePlay(){
     playScene.addChild(testButton);
     playScene.addChild(testButton2);
     
+    /* Initialize board and its cells */
+    board = new PIXI.Container();
+    createBoard(boardSize, boardSize);
+    board.position.set(gameWidth/2 - board.width/2 + 10, gameHeight/2 - board.height/2 - 20);
+    playScene.addChild(board);
+    
+    
+    
     
     playScene.visible = false;
+}
+
+function createBoard(row, col) {
+    let cells;
+    let xReal = 0, 
+        yReal = 0;
+    for(let x = 0; x < row; x++) {
+        boardArray.push([]);
+        for(let y = 0; y < col; y++) {
+            cells = new PIXI.Sprite(id[spriteSource[11]]);
+            console.log(cells.width + "|" + cells.height)
+            cells.position.set(xReal,yReal);
+            xReal+= cells.width;
+            cells.anchor.set(0.5,0.5);
+            boardArray[x].push(cells);
+            board.addChild(cells);
+            
+            if(y == col-1) {
+                yReal += cells.height;
+                xReal = 0; 
+            }
+        }
+    }
 }
 
 let timerOn = false;
