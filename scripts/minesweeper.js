@@ -42,19 +42,32 @@ let bombSprite,
     timerContainerSprite,
     unpressedBlockSprite;
 
+//All about title
 let buttonStart,
     buttonStartContainer,
     titleLogo,
-    titleBG;
+    titleBG,
+    textStart;
 
 let playBG;
 
 let titleScene,
     playScene,
-    gameOverScene;
+    gameOverScene,
+    winScene;
 
 let state;
 let charm = new Charm(PIXI);
+
+let textStyle = new PIXI.TextStyle({
+    fontFamily: 'Arvo',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    fontSize: 30,
+    fill: "0xffffff",
+    wordWrap: true,
+    wordWrapWidth: 440
+});
 
 gameDiv.appendChild(app.view);
 PIXI.loader
@@ -76,10 +89,12 @@ function setup() {
     initializeTitle();
     initializePlay();
     initializeEnd();
+    initializeWin();
     
     state = title;
     app.ticker.add(delta => gameLoop())
 }
+
 
 
 function gameLoop() {
@@ -87,6 +102,16 @@ function gameLoop() {
     charm.update();
 }
 
+let time = 0;
+let ctr = 0;
+function timer() {
+    ctr++;
+    if(ctr == 60) {
+        time++;
+        console.log(time);
+        ctr = 0;
+    }
+}
 
 function initializeTitle(){
     //This button action serves as the "transition" for title -> play
@@ -110,6 +135,12 @@ function initializeTitle(){
     titleBG.position.set(gameWidth / 2, gameHeight / 2);
     titleScene.addChild(titleBG);
     
+    titleLogo = new PIXI.Sprite(id[spriteSource[7]]);
+    titleLogo.anchor.set(0.5,0.5);
+    titleLogo.position.set(gameWidth/2, gameHeight/2 - 50);
+    titleLogo.alpha = 0;
+    titleScene.addChild(titleLogo);
+    
     buttonStart = new PIXI.Sprite(id[spriteSource[4]]);
     initializeButton(buttonStart);
     buttonStart.anchor.set(0.5,0.5);
@@ -122,23 +153,21 @@ function initializeTitle(){
                                     buttonAction))
     .on("pointerout", () => buttonOut(buttonStart, id[spriteSource[4]]))
 
-    
-    titleLogo = new PIXI.Sprite(id[spriteSource[7]]);
-    titleLogo.anchor.set(0.5,0.5);
-    titleLogo.position.set(gameWidth/2, gameHeight/2 - 50);
-    titleLogo.alpha = 0;
-    titleScene.addChild(titleLogo);
-    
+    textStart = new PIXI.Text("Play", textStyle);
+    textStart.anchor.set(0.5,0.5);
 
     buttonStartContainer = new PIXI.Container();
     buttonStartContainer.position.set(gameWidth/2, gameHeight/2 + 50);
     buttonStartContainer.alpha = 0;
     buttonStartContainer.addChild(buttonStart);
+    buttonStartContainer.addChild(textStart);
     titleScene.addChild(buttonStartContainer);
     
     charm.fadeIn(titleScene).onComplete = () => 
     charm.fadeIn(titleLogo).onComplete = () => 
     charm.fadeIn(buttonStartContainer).onComplete = () => activateButton(buttonStart);
+    
+    titleScene.visible = true;
 }
 function title() {
 
@@ -148,20 +177,31 @@ function initializePlay(){
     playScene = new PIXI.Container();
     app.stage.addChild(playScene);
     
-    
+    playScene.visible = false;
 }
 
 function play() {
-
-    
+    timer();
 }
 
 function initializeEnd(){
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
-
+    
+    gameOverScene.visible = false;
 }
 function end(){}
+
+function initializeWin() {
+    winScene = new PIXI.Container();
+    app.stage.addChild(winScene);
+    
+    winScene.visible = false;
+}
+
+function win() {
+    
+}
 
 
 function initializeButton(button) {
