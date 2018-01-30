@@ -57,6 +57,7 @@ let buttonStart,
 let playBG,
     board,
     boardArray = [],
+    bombArray = [],
     timeText,
     bombText;
 
@@ -223,7 +224,7 @@ function initializePlay(){
     playBG = new PIXI.Sprite(id[spriteSource[6]])
     playBG.position.set(gameWidth/2, gameHeight/2);
     playBG.anchor.set(0.5,0.5);
-    playBG.scale.set(1,1.05)
+    //playBG.scale.set(1,1.05)
     playScene.addChild(playBG);
     
 
@@ -232,7 +233,7 @@ function initializePlay(){
     deathTween.pause();
     
     timeText = new PIXI.Text("0:00", textStyle);
-    timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 170);
+    timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
     playScene.addChild(timeText);
     
     bombText = new PIXI.Text(bombCount, textStyle);
@@ -270,26 +271,63 @@ function initializePlay(){
 }
 
 function createBoard(row, col) {
-    let cells;
-    let xReal = 0, 
+    let cellsA;
+    let cellsB;
+    let bomb;
+    let decision;
+    
+    let xReal = 0,
         yReal = 0;
+    
+    
     for(let x = 0; x < row; x++) {
         boardArray.push([]);
         for(let y = 0; y < col; y++) {
-            cells = new PIXI.Sprite(id[spriteSource[11]]);
-            console.log(cells.width + "|" + cells.height)
-            cells.position.set(xReal,yReal);
-            xReal+= cells.width;
-            cells.anchor.set(0.5,0.5);
-            boardArray[x].push(cells);
-            board.addChild(cells);
             
+            //below Cells
+            cellsB = new PIXI.Sprite(id[spriteSource[9]]);
+            createCell(cellsB, xReal, yReal);
+            boardArray[x].push(cellsB);
+            
+            //add bomb if necessary
+            decision = Math.floor((Math.random() * 100) + 1);
+            if(decision < 10 && bombArray.length < 10) {
+                bomb = new PIXI.Sprite(id[spriteSource[0]]);
+                bomb.position.set(xReal, yReal);
+                bomb.anchor.set(0.5,0.5);
+                board.addChild(bomb);
+                bombArray.push(bomb);
+            }
+            
+            
+            //above Cells
+            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
+            createCell(cellsA, xReal, yReal);
+            cellOnClick(cellsA);
+            
+            //Default cells B.
+            xReal+= cellsB.width;
             if(y == col-1) {
-                yReal += cells.height;
+                yReal += cellsB.height;
                 xReal = 0; 
             }
         }
     }
+    
+    console.log(bombArray);
+}
+
+function createCell(cell, x, y) {
+    cell.position.set(x,y);
+    cell.anchor.set(0.5,0.5);
+    board.addChild(cell);
+}
+
+function cellOnClick(cell) {
+    cell.interactive = true;
+    cell.on("pointerup", () => {
+       charm.fadeOut(cell, 20); 
+    });
 }
 
 let timerOn = false;
