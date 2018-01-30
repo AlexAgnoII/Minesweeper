@@ -1,12 +1,12 @@
 "use strict";
 
 let gameDiv = document.getElementById("game");
-const gameHeight = gameDiv.offsetHeight;
-const gameWidth = gameDiv.offsetWidth;
+let gameHeight;
+let gameWidth;
 
 let app = new PIXI.Application({ 
-    width: gameHeight, 
-    height: gameWidth,                       
+    width: 800, 
+    height: 800,                       
     antialias: true, 
     transparent: false, 
     resolution: 1
@@ -108,6 +108,9 @@ function loadProgressHandler(loader, resource) {
 function setup() {
     id = PIXI.loader.resources[mineSweeperAtlas].textures; 
     
+
+
+    setCanvasSize();
     initializeTitle();
     initializePlay();
     initializeEnd();
@@ -117,6 +120,12 @@ function setup() {
     app.ticker.add(delta => gameLoop())
 }
 
+function setCanvasSize() {
+    let testSize = new PIXI.Sprite(id[spriteSource[8]]);
+    gameWidth = testSize.width;
+    gameHeight = testSize.height;
+    app.renderer.resize(gameWidth, gameHeight);
+}
 
 
 function gameLoop() {
