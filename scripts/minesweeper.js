@@ -16,6 +16,7 @@ let app = new PIXI.Application({
 //const getPos = app.renderer.plugins.interaction.mouse.global;
 
 const mineSweeperAtlas = "images/imgMineSweeper.json";
+const spriteOffSet = 1000;
 
 let id, 
     spriteSource = ["asset_bomb.png",             //0
@@ -73,7 +74,7 @@ let state;
 let charm = new Charm(PIXI);
 
 let textStyle = new PIXI.TextStyle({
-    fontFamily: 'Arvo',
+    fontFamily: 'Sans Sarif',
     fontWeight: 'bold',
     fontStyle: 'italic',
     fontSize: 30,
@@ -133,10 +134,14 @@ function initializeTitle(){
         console.log("Play!");
         //reset and send to 'play'
         initializeButton(buttonStart);
+        charm.slide(buttonStartContainer, 
+                    buttonStartContainer.x, 
+                    buttonStartContainer.y + spriteOffSet)
+        .onComplete = () => 
         charm.fadeOut(titleScene).onComplete = () => {
-            buttonStartContainer.alpha = 0;
-            titleLogo.alpha = 0;
-            titleScene.alpha = 0;
+            titleLogo.x = gameWidth/2 - spriteOffSet;
+            buttonStartContainer.y = gameHeight/2 + spriteOffSet;
+            //titleScene.alpha = 0;
             buttonStart.texture = id[spriteSource[4]];
             state = play
         };
@@ -153,8 +158,7 @@ function initializeTitle(){
     
     titleLogo = new PIXI.Sprite(id[spriteSource[7]]);
     titleLogo.anchor.set(0.5,0.5);
-    titleLogo.position.set(gameWidth/2, gameHeight/2 - 50);
-    titleLogo.alpha = 0;
+    titleLogo.position.set(gameWidth/2 - spriteOffSet, gameHeight/2 - 50);
     titleScene.addChild(titleLogo);
     
     buttonStart = new PIXI.Sprite(id[spriteSource[4]]);
@@ -170,8 +174,7 @@ function initializeTitle(){
     textStart.anchor.set(0.5,0.5);
 
     buttonStartContainer = new PIXI.Container();
-    buttonStartContainer.position.set(gameWidth/2, gameHeight/2 + 50);
-    buttonStartContainer.alpha = 0;
+    buttonStartContainer.position.set(gameWidth/2, gameHeight/2 + spriteOffSet);
     buttonStartContainer.addChild(buttonStart);
     buttonStartContainer.addChild(textStart);
     titleScene.addChild(buttonStartContainer);
@@ -183,9 +186,11 @@ function title() {
         playScene.visible = false;
         gameOverScene.visible = false;
         titleScene.visible = true; 
-        charm.fadeIn(titleScene).onComplete = () => 
-        charm.fadeIn(titleLogo).onComplete = () => 
-        charm.fadeIn(buttonStartContainer).onComplete = () => activateButton(buttonStart);
+        charm.fadeIn(titleScene).onComplete = () => {
+            charm.slide(titleLogo, gameWidth/2, titleLogo.y).onComplete = () => 
+            charm.slide(buttonStartContainer, buttonStartContainer.x, gameHeight/2 + 50).onComplete = () => activateButton(buttonStart);
+        }
+
     }
 }
 
@@ -232,7 +237,7 @@ function initializePlay(){
 
 let timerOn = false;
 function play() {
-    if(!playScene.visible) {
+    if(!playScene.visible ) {
         titleScene.visible = false;
         gameOverScene.visible = false
         playScene.visible = true; 
@@ -247,8 +252,14 @@ function play() {
 
 function initializeEnd(){
     
-    let buttonActionRetry;
-    let buttonActionMain;
+    let buttonActionRetry = () => {
+        resetEndNext(play);
+
+    };
+    
+    let buttonActionMain = () => {
+        resetEndNext(title);
+    };
     
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
@@ -263,43 +274,43 @@ function initializeEnd(){
     gameOverScene.addChild(blackBackground);
     
     gameOverLogo = new PIXI.Sprite(id[spriteSource[5]]);
-    gameOverLogo.position.set(gameWidth/2, gameHeight/2 - 130);
+    gameOverLogo.position.set(gameWidth/2 - spriteOffSet, gameHeight/2 - 130);
     gameOverLogo.anchor.set(0.5,0.5);
     gameOverScene.addChild(gameOverLogo);
     
 
-    buttonActionRetry = new PIXI.Sprite(id[spriteSource[4]]);
-    buttonActionRetry.anchor.set(0.5,0.5);
-    buttonActionRetry.position.set(buttonActionRetry.width/2, buttonActionRetry.height/2); 
-    initializeButton(buttonActionRetry);
-    activateButton(buttonActionRetry);
-    addButtonActionListener(buttonActionRetry, 
+    buttonRetry = new PIXI.Sprite(id[spriteSource[4]]);
+    buttonRetry.anchor.set(0.5,0.5);
+    buttonRetry.position.set(buttonRetry.width/2, buttonRetry.height/2); 
+    initializeButton(buttonRetry);
+    activateButton(buttonRetry);
+    addButtonActionListener(buttonRetry, 
                             id[spriteSource[2]], 
                             id[spriteSource[3]], 
                             id[spriteSource[4]], 
                             buttonActionRetry);
 
-    buttonActionMain = new PIXI.Sprite(id[spriteSource[4]]);
-    buttonActionMain.anchor.set(0.5,0.5);
-    buttonActionMain.position.set(buttonActionMain.width/2, buttonActionMain.height * 2);
-    initializeButton(buttonActionMain);
-    activateButton(buttonActionMain);
-    addButtonActionListener(buttonActionMain, 
+    buttonMain = new PIXI.Sprite(id[spriteSource[4]]);
+    buttonMain.anchor.set(0.5,0.5);
+    buttonMain.position.set(buttonMain.width/2, buttonMain.height * 2);
+    initializeButton(buttonMain);
+    activateButton(buttonMain);
+    addButtonActionListener(buttonMain, 
                             id[spriteSource[2]], 
                             id[spriteSource[3]], 
                             id[spriteSource[4]], 
                             buttonActionMain);
     
     endButtonGroup = new PIXI.Container();
-    endButtonGroup.position.set((gameWidth/2) - (buttonActionMain.width/2), (gameHeight/2) - 20);
+    endButtonGroup.position.set((gameWidth/2) - (buttonMain.width/2), (gameHeight/2) + spriteOffSet);
     gameOverScene.addChild(endButtonGroup);
     
     tryText = new PIXI.Text("Retry", textStyle);
-    tryText.position.set(buttonActionRetry.x, buttonActionRetry.y);
+    tryText.position.set(buttonRetry.x, buttonRetry.y);
     tryText.anchor.set(0.5,0.5);
     
     mainText = new PIXI.Text("Quit", textStyle);
-    mainText.position.set(buttonActionMain.x, buttonActionMain.y);
+    mainText.position.set(buttonMain.x, buttonMain.y);
     mainText.anchor.set(0.5,0.5);
     
     
@@ -307,8 +318,8 @@ function initializeEnd(){
     
     
 
-    endButtonGroup.addChild(buttonActionRetry);
-    endButtonGroup.addChild(buttonActionMain);
+    endButtonGroup.addChild(buttonRetry);
+    endButtonGroup.addChild(buttonMain);
     endButtonGroup.addChild(tryText);
     endButtonGroup.addChild(mainText);
     
@@ -322,10 +333,37 @@ function initializeEnd(){
     gameOverScene.visible = false;
 }
 
+function resetEndNext(next) {
+    console.log("wtf?")
+    charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) + spriteOffSet).onComplete = () => {
+        charm.fadeOut(playScene);
+        charm.fadeOut(gameOverScene).onComplete = () => {
+            playScene.visible = false;
+            //playScene.alpha = 0;
+            time = 0;
+            ctr = 0;
+            timerOn = false;
+            gameOverLogo.x = gameWidth/2 - spriteOffSet;
+            endButtonGroup.y = (gameHeight/2) + spriteOffSet;   
+            state = next;
+        };
+    }
+
+    
+
+}
+
 function end(){
     if(!gameOverScene.visible) {
+        gameOverScene.alpha = 1;
         titleScene.visible = false;
         gameOverScene.visible = true
+        charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y)
+        .onComplete = () => {
+            charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20);
+        }
+
+
     }
 
 }
