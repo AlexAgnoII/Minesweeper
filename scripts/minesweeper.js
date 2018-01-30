@@ -55,6 +55,8 @@ let playBG;
 
 //All about the end
 let winText,
+    tryText,
+    mainText,
     gameOverLogo,
     endButtonGroup,
     buttonRetry,
@@ -158,14 +160,11 @@ function initializeTitle(){
     buttonStart = new PIXI.Sprite(id[spriteSource[4]]);
     initializeButton(buttonStart);
     buttonStart.anchor.set(0.5,0.5);
-    buttonStart
-    .on("pointerdown", () => buttonDown(buttonStart, id[spriteSource[2]]))
-    .on("pointerover", () => buttonHover(buttonStart, id[spriteSource[3]]))
-    .on("pointerup", () => buttonUp(buttonStart, 
-                                    id[spriteSource[4]], 
-                                    id[spriteSource[3]],
-                                    buttonAction))
-    .on("pointerout", () => buttonOut(buttonStart, id[spriteSource[4]]))
+    addButtonActionListener(buttonStart, 
+                            id[spriteSource[2]], 
+                            id[spriteSource[3]], 
+                            id[spriteSource[4]], 
+                            buttonAction)
 
     textStart = new PIXI.Text("Play", textStyle);
     textStart.anchor.set(0.5,0.5);
@@ -267,23 +266,51 @@ function initializeEnd(){
     gameOverLogo.position.set(gameWidth/2, gameHeight/2 - 130);
     gameOverLogo.anchor.set(0.5,0.5);
     gameOverScene.addChild(gameOverLogo);
-
-    buttonActionMain = new PIXI.Sprite(id[spriteSource[4]]);
-    buttonActionMain.anchor.set(0.5,0.5);
-    buttonActionMain.position.set(buttonActionMain.width/2, buttonActionMain.height/2);
+    
 
     buttonActionRetry = new PIXI.Sprite(id[spriteSource[4]]);
     buttonActionRetry.anchor.set(0.5,0.5);
-    buttonActionRetry.position.set(buttonActionRetry.width/2, buttonActionRetry.height * 2); 
+    buttonActionRetry.position.set(buttonActionRetry.width/2, buttonActionRetry.height/2); 
+    initializeButton(buttonActionRetry);
+    activateButton(buttonActionRetry);
+    addButtonActionListener(buttonActionRetry, 
+                            id[spriteSource[2]], 
+                            id[spriteSource[3]], 
+                            id[spriteSource[4]], 
+                            buttonActionRetry);
+
+    buttonActionMain = new PIXI.Sprite(id[spriteSource[4]]);
+    buttonActionMain.anchor.set(0.5,0.5);
+    buttonActionMain.position.set(buttonActionMain.width/2, buttonActionMain.height * 2);
+    initializeButton(buttonActionMain);
+    activateButton(buttonActionMain);
+    addButtonActionListener(buttonActionMain, 
+                            id[spriteSource[2]], 
+                            id[spriteSource[3]], 
+                            id[spriteSource[4]], 
+                            buttonActionMain);
     
     endButtonGroup = new PIXI.Container();
     endButtonGroup.position.set((gameWidth/2) - (buttonActionMain.width/2), (gameHeight/2) - 20);
     gameOverScene.addChild(endButtonGroup);
-
-
     
-    endButtonGroup.addChild(buttonActionMain);
+    tryText = new PIXI.Text("Retry", textStyle);
+    tryText.position.set(buttonActionRetry.x, buttonActionRetry.y);
+    tryText.anchor.set(0.5,0.5);
+    
+    mainText = new PIXI.Text("Quit", textStyle);
+    mainText.position.set(buttonActionMain.x, buttonActionMain.y);
+    mainText.anchor.set(0.5,0.5);
+    
+    
+    
+    
+    
+
     endButtonGroup.addChild(buttonActionRetry);
+    endButtonGroup.addChild(buttonActionMain);
+    endButtonGroup.addChild(tryText);
+    endButtonGroup.addChild(mainText);
     
 
     
@@ -312,8 +339,8 @@ function initializeButton(button) {
 }
 
 function activateButton(button) {
-    buttonStart.interactive = true;
-    buttonStart.buttonMode = true;
+    button.interactive = true;
+    button.buttonMode = true;
 }
 
 function buttonUp(sprite, textureUP, textureOver, action) {
@@ -342,6 +369,21 @@ function buttonOut(sprite, texture) {
     sprite.isOver = false;
     console.log("Is out");
     sprite.texture = texture;
+}
+                                                          
+function addButtonActionListener(button, 
+                                  textureDown, //2  
+                                  textureHover, //3 
+                                  textureUp,     //4
+                                  action) {
+    button
+    .on("pointerdown", () => buttonDown(button, textureDown))
+    .on("pointerover", () => buttonHover(button, textureHover))
+    .on("pointerup", () => buttonUp(button, 
+                                    textureUp, 
+                                    textureHover,
+                                    action))
+    .on("pointerout", () => buttonOut(button, textureUp))
 }
 
 
