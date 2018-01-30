@@ -17,6 +17,7 @@ let app = new PIXI.Application({
 
 const mineSweeperAtlas = "images/imgMineSweeper.json";
 const spriteOffSet = 1000;
+const bombCount = 5;
 
 let id, 
     spriteSource = ["asset_bomb.png",             //0
@@ -52,7 +53,8 @@ let buttonStart,
     textStart;
 
 //All about the play
-let playBG;
+let playBG,
+    timeText;
 
 //All about the end
 let winText,
@@ -118,6 +120,7 @@ function gameLoop() {
 }
 
 let time = 0;
+let minuteElapse = 0;
 let ctr = 0;
 function timer() {
     ctr++;
@@ -125,6 +128,18 @@ function timer() {
         time++;
         console.log(time);
         ctr = 0;
+        
+        if(time < 10) {
+            timeText.text = minuteElapse + ":0" + time; 
+        }
+        else if(time < 60) {
+            timeText.text = minuteElapse + ":" + time;
+        }
+        else {
+            minuteElapse++;
+            time = 0;
+            timeText.text = minuteElapse + ":00";
+        }
     }
 }
 
@@ -206,20 +221,25 @@ function initializePlay(){
     playBG.anchor.set(0.5,0.5);
     playScene.addChild(playBG);
     
+
+    
+    deathTween = charm.slide(playScene, 20, 0, 5, 'smoothstep', true);
+    deathTween.pause();
+    
+    timeText = new PIXI.Text("0:00", textStyle);
+    timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
+
+
+    playScene.addChild(timeText);
+    
+    
+
     testButton = new PIXI.Sprite(id[spriteSource[4]]);
     testButton.interactive = true;
     testButton.on("pointerdown", () => {
        state = end; 
        //deathTween.play();
     });
-    
-    deathTween = charm.slide(playScene, 20, 0, 5, 'smoothstep', true);
-    deathTween.pause();
-    
-    
-    
-
-    
     testButton2 = new PIXI.Sprite(id[spriteSource[3]]);
     testButton2.interactive = true;
     testButton2.position.set(200, 0);
@@ -340,6 +360,7 @@ function resetEndNext(next) {
         charm.fadeOut(gameOverScene).onComplete = () => {
             playScene.visible = false;
             //playScene.alpha = 0;
+            minuteElapse = 0;
             time = 0;
             ctr = 0;
             timerOn = false;
