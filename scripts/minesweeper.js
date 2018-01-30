@@ -56,7 +56,8 @@ let buttonStart,
 //All about the play
 let playBG,
     board,
-    boardArray = [],
+    cellBelowArray = [],
+    cellAboveArray = [],
     bombArray = [],
     timeText,
     bombText;
@@ -214,8 +215,6 @@ function title() {
     }
 }
 
-let testButton;
-let testButton2;
 function initializePlay(){
     playScene = new PIXI.Container();
     playScene.alpha = 0;
@@ -238,23 +237,7 @@ function initializePlay(){
     bombText = new PIXI.Text(bombCount, textStyle);
     bombText.position.set(gameWidth/2 + 120, timeText.y);
     playScene.addChild(bombText);
-    
 
-    testButton = new PIXI.Sprite(id[spriteSource[4]]);
-    testButton.interactive = true;
-    testButton.on("pointerdown", () => {
-       state = end; 
-    });
-    testButton2 = new PIXI.Sprite(id[spriteSource[3]]);
-    testButton2.interactive = true;
-    testButton2.position.set(200, 0);
-    testButton2.on("pointerdown", () => {
-       deathTween.pause();
-       playScene.position.set(0,0);
-    });
-    
-    playScene.addChild(testButton);
-    playScene.addChild(testButton2);
     
     /* Initialize board and its cells */
     board = new PIXI.Container();
@@ -279,13 +262,14 @@ function createBoard(row, col) {
     
     
     for(let x = 0; x < row; x++) {
-        boardArray.push([]);
+        cellBelowArray.push([]);
+        cellAboveArray.push([]);
         for(let y = 0; y < col; y++) {
             
             //below Cells
             cellsB = new PIXI.Sprite(id[spriteSource[9]]);
             createCell(cellsB, xReal, yReal);
-            boardArray[x].push(cellsB);
+            cellBelowArray[x].push(cellsB);
             
             //add bomb if necessary
             decision = Math.floor((Math.random() * 100) + 1);
@@ -293,6 +277,7 @@ function createBoard(row, col) {
                 bomb = new PIXI.Sprite(id[spriteSource[0]]);
                 bomb.position.set(xReal, yReal);
                 bomb.anchor.set(0.5,0.5);
+                bomb.alpha = 0;
                 board.addChild(bomb);
                 bombArray.push(bomb);
             }
@@ -302,6 +287,7 @@ function createBoard(row, col) {
             cellsA = new PIXI.Sprite(id[spriteSource[11]]);
             createCell(cellsA, xReal, yReal);
             cellOnClick(cellsA);
+            cellAboveArray[x].push(cellsA);
             
             //Default cells B.
             xReal+= cellsB.width;
@@ -350,11 +336,18 @@ function play() {
         playScene.visible = true; 
         charm.fadeIn(playScene, 20).onComplete = () => {
             timerOn = true;
+            reApearBomb(); //change bomb's alpha to 1
         }
     }
     
     if(timerOn)
         timer();
+}
+
+function reApearBomb() {
+    for(let i = 0; i < bombArray.length; i++) {
+        bombArray[i].alpha = 1;
+    }
 }
 
 function initializeEnd(){
@@ -454,12 +447,62 @@ function resetEndNext(next) {
             timerOn = false;
             gameOverLogo.x = gameWidth/2 - spriteOffSet;
             endButtonGroup.y = (gameHeight/2) + spriteOffSet;   
+            resetPlayBoard();
             state = next;
         };
     }
+}
 
+function resetPlayBoard() {
+    //remove bombs
+    while(bombArray.length > 0) {
+        board.removeChild(bombArray[0]);
+        bombArray.splice(0, 1);
+    }
     
+    //resetTiles
+    for(let x = 0; x < boardSize; x++) {
+        while(cellAboveArray[x].length > 0) {
+            board.removeChild(cellAboveArray[x][0]);
+            cellAboveArray[x].splice(0, 1);
+        }
+    }
+    console.log(cellAboveArray);
+    console.log(bombArray.length);
+}
 
+//recraetas board by setting bomb and upper layer
+function reCreateBoard() {
+    
+//    for(let x = 0; x < boardSize; x++) {
+//        for(let y = 0; y < boardSize; y++) {
+//            //add bomb if necessary
+//            decision = Math.floor((Math.random() * 100) + 1);
+//            if(decision < 10 && bombArray.length < 10) {
+//                bomb = new PIXI.Sprite(id[spriteSource[0]]);
+//                bomb.position.set(xReal, yReal);
+//                bomb.anchor.set(0.5,0.5);
+//                bomb.alpha = 0;
+//                board.addChild(bomb);
+//                bombArray.push(bomb);
+//            }
+//            
+//            
+//            //above Cells
+//            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
+//            createCell(cellsA, xReal, yReal);
+//            cellOnClick(cellsA);
+//            cellAboveArray[x].push(cellsA);
+//            
+//            //Default cells B.
+//            xReal+= cellsB.width;
+//            if(y == col-1) {
+//                yReal += cellsB.height;
+//                xReal = 0; 
+//            }
+//        }
+//    }
+    
 }
 
 function end(){
@@ -473,8 +516,6 @@ function end(){
             deathTween.pause();
             playScene.position.set(0,0);
         }
-
-
     }
 
 }
