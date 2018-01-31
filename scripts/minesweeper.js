@@ -461,10 +461,78 @@ function cellOnClick(cell) {
 
            //if not, show other tiles.
            else {
-
+                let theIndex = findCellAndGiveIndex(cell.x, cell.y);
+                reveal(theIndex[0], theIndex[1], cell);
            }
        }
     });
+}
+
+function findCellAndGiveIndex(cellX, cellY) {
+    let temp = [];
+    
+    for(let x = 0; x < cellAboveArray.length; x++) {
+        for(let y = 0; y < cellAboveArray.length;y++) {
+            if(cellAboveArray[x][y].x == cellX &&
+              cellAboveArray[x][y].y == cellY) {
+                temp.push(x);
+                temp.push(y);
+                return temp;
+            }
+        }
+    }    
+}
+
+//reveals all adjacent part except numbers or bombs
+function reveal(x, y, cell) {
+    console.log(x +"|" + y)
+    if(!hitNum(cell)) {
+        //top
+        if(x != 0) {
+            if(!hitNum(cellAboveArray[x-1][y])) {
+                charm.fadeOut(cellAboveArray[x-1][y], 20);
+            }
+        }
+        
+        //down
+        if(x != boardSize-1) {
+            if(!hitNum(cellAboveArray[x+1][y])) {
+                 charm.fadeOut(cellAboveArray[x+1][y], 20);
+            }
+        }
+        
+        //right
+        if(y != boardSize-1) {
+            if(!hitNum(cellAboveArray[x][y+1])) {
+                charm.fadeOut(cellAboveArray[x][y+1], 20);
+            }
+        }
+        
+        //left
+        if(y != 0) {
+           if(!hitNum(cellAboveArray[x][y-1])) {
+               charm.fadeOut(cellAboveArray[x][y-1], 20);
+            }
+        }
+        
+    }
+}
+
+function hitNum(cell) {
+    for(let i = 0; i < numWarnArray.length; i++) {
+        if(cell.x == numWarnArray[i].x &&
+           cell.y == numWarnArray[i].y) {
+            return true;
+        }
+    }
+    return false;
+}
+function checkDiagonalsNum(testx, testy, x, y) {
+    if(testx >= 0 && testx < boardSize &&
+       testy >= 0 && testy < boardSize) {
+        return hitBomb(cellBelowArray[testx][testy]) && !hitBomb(cellBelowArray[x][y]);
+    }
+    return false;
 }
 
 function alreadyFound(x, y) {
