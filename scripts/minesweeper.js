@@ -73,7 +73,13 @@ let titleScene,
     playScene,
     gameOverScene;
 
-let deathTween;
+let wayPoints = [[0,0],
+                 [5,0],
+                 [-5,0],
+                 [10,0],
+                 [-10,0],
+                 [0,0]];
+
 
 let state;
 let charm = new Charm(PIXI);
@@ -232,10 +238,6 @@ function initializePlay(){
     playBG.anchor.set(0.5,0.5);
     playScene.addChild(playBG);
     
-
-    
-    deathTween = charm.slide(playScene, 20, 0, 2, 'smoothstep', true);
-    deathTween.pause();
     
     timeText = new PIXI.Text("0:00", textStyle);
     timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
@@ -319,7 +321,8 @@ function cellOnClick(cell) {
     cell.on("pointerup", () => {
        charm.fadeOut(cell, 20); 
        if(hitBomb(cell)) {
-           deathTween.play();
+           //Exploding shaking effect
+           charm.walkPath(playScene, wayPoints, 10, 'linear');
            state = end;
        }
         
@@ -454,6 +457,7 @@ function resetEndNext(next) {
             gameOverLogo.x = gameWidth/2 - spriteOffSet;
             endButtonGroup.y = (gameHeight/2) + spriteOffSet;   
             resetPlayBoard();
+            reCreateBoard();
             state = next;
         };
     }
@@ -466,7 +470,7 @@ function resetPlayBoard() {
         bombArray.splice(0, 1);
     }
     
-    //resetTiles
+    //resetTiles (above cells)
     for(let x = 0; x < boardSize; x++) {
         while(cellAboveArray[x].length > 0) {
             board.removeChild(cellAboveArray[x][0]);
@@ -479,35 +483,45 @@ function resetPlayBoard() {
 
 //recraetas board by setting bomb and upper layer
 function reCreateBoard() {
+    let decision;
+    let xReal = 0, 
+        yReal = 0;
+    let bomb;
+    let cellsA;
+    let cellsB = new PIXI.Sprite(id[spriteSource[9]]);
+    let trueWidth = cellsB.width;
+    let trueHeight = cellsB.height;
+    for(let x = 0; x < boardSize; x++) {
+        for(let y = 0; y < boardSize; y++) {
+            //add bomb if necessary
+            decision = Math.floor((Math.random() * 100) + 1);
+            if(decision < 10 && bombArray.length < 10) {
+                bomb = new PIXI.Sprite(id[spriteSource[0]]);
+                bomb.position.set(xReal, yReal);
+                bomb.anchor.set(0.5,0.5);
+                bomb.alpha = 0;
+                board.addChild(bomb);
+                bombArray.push(bomb);
+            }
+            
+            
+            //above Cells
+            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
+            createCell(cellsA, xReal, yReal);
+            cellOnClick(cellsA);
+            cellAboveArray[x].push(cellsA);
+            
+            //Default cells B.
+            xReal+= trueWidth;
+            if(y == boardSize-1) {
+                yReal += trueHeight;
+                xReal = 0; 
+            }
+        }
+    }
     
-//    for(let x = 0; x < boardSize; x++) {
-//        for(let y = 0; y < boardSize; y++) {
-//            //add bomb if necessary
-//            decision = Math.floor((Math.random() * 100) + 1);
-//            if(decision < 10 && bombArray.length < 10) {
-//                bomb = new PIXI.Sprite(id[spriteSource[0]]);
-//                bomb.position.set(xReal, yReal);
-//                bomb.anchor.set(0.5,0.5);
-//                bomb.alpha = 0;
-//                board.addChild(bomb);
-//                bombArray.push(bomb);
-//            }
-//            
-//            
-//            //above Cells
-//            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
-//            createCell(cellsA, xReal, yReal);
-//            cellOnClick(cellsA);
-//            cellAboveArray[x].push(cellsA);
-//            
-//            //Default cells B.
-//            xReal+= cellsB.width;
-//            if(y == col-1) {
-//                yReal += cellsB.height;
-//                xReal = 0; 
-//            }
-//        }
-//    }
+    console.log(bombArray);
+    console.log(cellAboveArray);
     
 }
 
@@ -516,11 +530,11 @@ function end(){
         gameOverScene.alpha = 1;
         titleScene.visible = false;
         gameOverScene.visible = true
-        charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y)
+        charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y, 20)
         .onComplete = () => {
             charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20, 20);
             console.log("i happened")
-            deathTween.pause();
+
             playScene.position.set(0,0);
         }
     }
