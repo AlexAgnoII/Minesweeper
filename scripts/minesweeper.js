@@ -490,28 +490,75 @@ function reveal(x, y, cell) {
         //top
         if(x != 0) {
             if(!hitNum(cellAboveArray[x-1][y])) {
-                charm.fadeOut(cellAboveArray[x-1][y], 20);
+                if(cellAboveArray[x-1][y].alpha != 0) {
+                    charm.fadeOut(cellAboveArray[x-1][y], 20);
+                    console.log("do top")
+                }
+                    
             }
         }
         
         //down
         if(x != boardSize-1) {
             if(!hitNum(cellAboveArray[x+1][y])) {
-                 charm.fadeOut(cellAboveArray[x+1][y], 20);
+                if(cellAboveArray[x+1][y].alpha != 0) {
+                    charm.fadeOut(cellAboveArray[x+1][y], 20);
+                    console.log("down top")
+                }
             }
         }
         
         //right
         if(y != boardSize-1) {
             if(!hitNum(cellAboveArray[x][y+1])) {
-                charm.fadeOut(cellAboveArray[x][y+1], 20);
+                if(cellAboveArray[x][y+1].alpha != 0) {
+                    charm.fadeOut(cellAboveArray[x][y+1], 20);
+                    console.log("do right")
+                }
             }
         }
         
         //left
         if(y != 0) {
            if(!hitNum(cellAboveArray[x][y-1])) {
-               charm.fadeOut(cellAboveArray[x][y-1], 20);
+               if(cellAboveArray[x][y-1].alpha != 0) {
+                   charm.fadeOut(cellAboveArray[x][y-1], 20);
+                   console.log("do left")    
+               }
+            }
+        }
+        
+        //diagonals
+        
+        //top left
+        if(checkDiagonalsNum(x-1, y-1)) {
+            if(cellAboveArray[x-1][y-1].alpha !=0) {
+                charm.fadeOut(cellAboveArray[x-1][y-1], 20);
+                console.log("upper left") 
+            }
+        }
+        
+        //top right
+        if(checkDiagonalsNum(x-1, y+1)) {
+            if(cellAboveArray[x-1][y+1].alpha !=0) {
+                charm.fadeOut(cellAboveArray[x-1][y+1], 20);
+                console.log("upper right") 
+            }
+        }
+        
+        //lower left
+        if(checkDiagonalsNum(x+1, y-1)) {
+            if(cellAboveArray[x+1][y-1].alpha !=0) {
+                charm.fadeOut(cellAboveArray[x+1][y-1], 20);
+                console.log("lower left") 
+            }
+        }
+        
+        //down right
+        if(checkDiagonalsNum(x+1, y+1)) {
+            if(cellAboveArray[x+1][y+1].alpha !=0) {
+                charm.fadeOut(cellAboveArray[x+1][y+1], 20);
+                console.log("lower right") 
             }
         }
         
@@ -527,10 +574,10 @@ function hitNum(cell) {
     }
     return false;
 }
-function checkDiagonalsNum(testx, testy, x, y) {
+function checkDiagonalsNum(testx, testy) {
     if(testx >= 0 && testx < boardSize &&
        testy >= 0 && testy < boardSize) {
-        return hitBomb(cellBelowArray[testx][testy]) && !hitBomb(cellBelowArray[x][y]);
+        return !hitNum(cellAboveArray[testx, testy]);
     }
     return false;
 }
