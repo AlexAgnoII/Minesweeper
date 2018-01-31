@@ -269,10 +269,13 @@ function createBoard(row, col) {
     let xReal = 0,
         yReal = 0;
     
+    let trueWidth;
+    let trueHeight;
+    let ctr = 1;
     
     for(let x = 0; x < row; x++) {
         cellBelowArray.push([]);
-        cellAboveArray.push([]);
+        //cellAboveArray.push([]);
         for(let y = 0; y < col; y++) {
             
             //below Cells
@@ -292,16 +295,42 @@ function createBoard(row, col) {
             }
             
             
-            //above Cells
-            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
-            createCell(cellsA, xReal, yReal);
-            cellOnClick(cellsA);
-            cellAboveArray[x].push(cellsA);
+//            //above Cells
+//            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
+//            createCell(cellsA, xReal, yReal);
+//            cellOnClick(cellsA);
+//            cellAboveArray[x].push(cellsA);
             
             //Default cells B.
             xReal+= cellsB.width;
             if(y == col-1) {
                 yReal += cellsB.height;
+                xReal = 0; 
+            }
+            
+            if(ctr == 1) {
+                ctr--;
+                trueHeight = cellsB.height;
+                trueWidth = cellsB.width;
+            }
+        }
+    }
+    yReal = 0;
+    xReal = 0;
+    for(let x = 0; x < row; x++) {
+        cellAboveArray.push([]);
+        for(let y = 0; y < col; y++) {
+            //place number if needed
+            
+            //place above cell.
+            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
+            createCell(cellsA, xReal, yReal);
+            cellOnClick(cellsA);
+            cellAboveArray[x].push(cellsA);
+            
+            xReal+= trueWidth;
+            if(y == col-1) {
+                yReal += trueHeight;
                 xReal = 0; 
             }
         }
@@ -317,16 +346,27 @@ function createCell(cell, x, y) {
 }
 
 function cellOnClick(cell) {
-    cell.interactive = true;
+//    cell.interactive = true;
     cell.on("pointerup", () => {
        charm.fadeOut(cell, 20); 
+        
+        //if Hit, game over!
        if(hitBomb(cell)) {
            //Exploding shaking effect
            charm.walkPath(playScene, wayPoints, 10, 'linear');
            state = end;
        }
         
+       //if not, show other tiles.
+       else {
+           reveal();
+       }
+        
     });
+}
+
+function reveal() {
+    
 }
 
 function hitBomb(cell) {
@@ -347,11 +387,20 @@ function play() {
         charm.fadeIn(playScene, 20).onComplete = () => {
             timerOn = true;
             reApearBomb(); //change bomb's alpha to 1
+            makeCellsClickable(true);
         }
     }
     
     if(timerOn)
         timer();
+}
+
+function makeCellsClickable(isClickable) {
+    for (let x = 0; x < boardSize; x++) {
+        for(let y = 0; y < boardSize; y++) {
+            cellAboveArray[x][y].interactive = isClickable;
+        }
+    }
 }
 
 function reApearBomb() {
@@ -530,6 +579,7 @@ function end(){
         gameOverScene.alpha = 1;
         titleScene.visible = false;
         gameOverScene.visible = true
+        makeCellsClickable(false); //disabled clickableness of above cells
         charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y, 20)
         .onComplete = () => {
             charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20, 20);
