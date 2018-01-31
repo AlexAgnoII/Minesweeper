@@ -35,9 +35,6 @@ let id,
                     "asset_unpressed_block.png"];     //11
 let bombSprite, 
     bombContainerSprite, 
-    buttonDownSprite = [], 
-    buttonHoverSprite = [], 
-    buttonUpSprite = [], 
     gameOverSprite,
     ingameBGSprite,
     logoSprite,
@@ -166,7 +163,8 @@ function initializeTitle(){
         initializeButton(buttonStart);
         charm.slide(buttonStartContainer, 
                     buttonStartContainer.x, 
-                    buttonStartContainer.y + spriteOffSet)
+                    buttonStartContainer.y + spriteOffSet,
+                    30)
         .onComplete = () => 
         charm.fadeOut(titleScene, 30).onComplete = () => {
             titleLogo.x = gameWidth/2 - spriteOffSet;
@@ -216,9 +214,9 @@ function title() {
         playScene.visible = false;
         gameOverScene.visible = false;
         titleScene.visible = true; 
-        charm.fadeIn(titleScene, 30).onComplete = () => {
-            charm.slide(titleLogo, gameWidth/2, titleLogo.y).onComplete = () => 
-            charm.slide(buttonStartContainer, buttonStartContainer.x, gameHeight/2 + 50).onComplete = () => activateButton(buttonStart);
+        charm.fadeIn(titleScene, 50).onComplete = () => {
+            charm.slide(titleLogo, gameWidth/2, titleLogo.y, 25).onComplete = () => 
+            charm.slide(buttonStartContainer, buttonStartContainer.x, gameHeight/2 + 50, 30).onComplete = () => activateButton(buttonStart);
         }
 
     }
@@ -443,8 +441,7 @@ function initializeEnd(){
 }
 
 function resetEndNext(next) {
-    console.log("wtf?")
-    charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) + spriteOffSet).onComplete = () => {
+    charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) + spriteOffSet, 20).onComplete = () => {
         charm.fadeOut(playScene, 20);
         charm.fadeOut(gameOverScene, 20).onComplete = () => {
             playScene.visible = false;
@@ -521,7 +518,8 @@ function end(){
         gameOverScene.visible = true
         charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y)
         .onComplete = () => {
-            charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20);
+            charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20, 20);
+            console.log("i happened")
             deathTween.pause();
             playScene.position.set(0,0);
         }
