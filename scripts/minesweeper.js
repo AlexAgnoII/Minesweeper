@@ -20,8 +20,8 @@ let app = new PIXI.Application({
 
 const mineSweeperAtlas = "images/imgMineSweeper.json";
 const spriteOffSet = 1000;
-const bombCount = 10;
-const boardSize = 15;
+const BOMB_COUNT = 10; //changine this adds/lessen bombs
+const BOARD_SIZE = 15; //dont change.
 
 let id, 
     spriteSource = ["asset_bomb.png",             //0
@@ -255,14 +255,14 @@ function initializePlay(){
     timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
     playScene.addChild(timeText);
     
-    bombText = new PIXI.Text(bombCount, textStyle);
+    bombText = new PIXI.Text(BOMB_COUNT, textStyle);
     bombText.position.set(gameWidth/2 + 120, timeText.y);
     playScene.addChild(bombText);
 
     
     /* Initialize board and its cells */
     board = new PIXI.Container();
-    createBoard(boardSize, boardSize);
+    createBoard(BOARD_SIZE, BOARD_SIZE);
     board.position.set(gameWidth/2 - board.width/2 + 10, gameHeight/2 - board.height/2 - 20);
     playScene.addChild(board);
     
@@ -297,7 +297,7 @@ function createBoard(row, col) {
             
             //add bomb if necessary
             decision = Math.floor((Math.random() * 100) + 1);
-            if(decision < 10 && bombArray.length < 10) {
+            if(decision < 10 && bombArray.length < BOMB_COUNT) {
                 bomb = new PIXI.Sprite(id[spriteSource[0]]);
                 bomb.position.set(xReal, yReal);
                 bomb.anchor.set(0.5,0.5);
@@ -365,7 +365,7 @@ function getMineCount(x, y) {
     }
     
     //cehck below
-    if (x != boardSize-1) {
+    if (x != BOARD_SIZE-1) {
         if(hitBomb(cellBelowArray[x+1][y])&& !hitBomb(cellBelowArray[x][y])) {
             count++;
         }
@@ -379,7 +379,7 @@ function getMineCount(x, y) {
     }
     
     //check right
-    if(y != boardSize-1) {
+    if(y != BOARD_SIZE-1) {
         if(hitBomb(cellBelowArray[x][y+1])&& !hitBomb(cellBelowArray[x][y])) {
             count++;
         }
@@ -408,8 +408,8 @@ function getMineCount(x, y) {
     return count;
 }
 function checkDiagonals(testx, testy, x, y) {
-    if(testx >= 0 && testx < boardSize &&
-       testy >= 0 && testy < boardSize) {
+    if(testx >= 0 && testx < BOARD_SIZE &&
+       testy >= 0 && testy < BOARD_SIZE) {
         return hitBomb(cellBelowArray[testx][testy]) && !hitBomb(cellBelowArray[x][y]);
     }
     return false;
@@ -502,7 +502,7 @@ function reveal(x, y, cell) {
         }
         
         //down
-        if(x != boardSize-1) {
+        if(x != BOARD_SIZE-1) {
             if(!hitNum(cellAboveArray[x+1][y])) {
                 if(cellAboveArray[x+1][y].alpha != 0) {
                     charm.fadeOut(cellAboveArray[x+1][y], 20);
@@ -512,7 +512,7 @@ function reveal(x, y, cell) {
         }
         
         //right
-        if(y != boardSize-1) {
+        if(y != BOARD_SIZE-1) {
             if(!hitNum(cellAboveArray[x][y+1])) {
                 if(cellAboveArray[x][y+1].alpha != 0) {
                     charm.fadeOut(cellAboveArray[x][y+1], 20);
@@ -578,8 +578,8 @@ function hitNum(cell) {
     return false;
 }
 function checkDiagonalsNum(testx, testy) {
-    if(testx >= 0 && testx < boardSize &&
-       testy >= 0 && testy < boardSize) {
+    if(testx >= 0 && testx < BOARD_SIZE &&
+       testy >= 0 && testy < BOARD_SIZE) {
         return !hitNum(cellAboveArray[testx, testy]);
     }
     return false;
@@ -626,8 +626,8 @@ function play() {
 
 //makes all cells above invisible when game is over.
 function dissapearCellAbove() {
-    for(let x = 0 ; x < boardSize;x++) {
-        for(let y = 0; y < boardSize; y++) {
+    for(let x = 0 ; x < BOARD_SIZE;x++) {
+        for(let y = 0; y < BOARD_SIZE; y++) {
             cellAboveArray[x][y].alpha = 0;
         }
     }
@@ -640,8 +640,8 @@ function reApearNum() {
 }
 
 function makeCellsClickable(isClickable) {
-    for (let x = 0; x < boardSize; x++) {
-        for(let y = 0; y < boardSize; y++) {
+    for (let x = 0; x < BOARD_SIZE; x++) {
+        for(let y = 0; y < BOARD_SIZE; y++) {
             cellAboveArray[x][y].interactive = isClickable;
         }
     }
@@ -743,7 +743,7 @@ function resetEndNext(next) {
             playScene.visible = false;
             //playScene.alpha = 0;
             timeText.text = "0:00";
-            bombText.text = bombCount;
+            bombText.text = BOMB_COUNT;
             winText.alpha = 0;
             didWin = false;
             minuteElapse = 0;
@@ -767,7 +767,7 @@ function resetPlayBoard() {
     }
     
     //resetTiles (above cells)
-    for(let x = 0; x < boardSize; x++) {
+    for(let x = 0; x < BOARD_SIZE; x++) {
         while(cellAboveArray[x].length > 0) {
             board.removeChild(cellAboveArray[x][0]);
             cellAboveArray[x].splice(0, 1);
@@ -799,11 +799,11 @@ function reCreateBoard() {
     let cellsB = new PIXI.Sprite(id[spriteSource[9]]);
     let trueWidth = cellsB.width;
     let trueHeight = cellsB.height;
-    for(let x = 0; x < boardSize; x++) {
-        for(let y = 0; y < boardSize; y++) {
+    for(let x = 0; x < BOARD_SIZE; x++) {
+        for(let y = 0; y < BOARD_SIZE; y++) {
             //add bomb if necessary
             decision = Math.floor((Math.random() * 100) + 1);
-            if(decision < 10 && bombArray.length < 10) {
+            if(decision < 10 && bombArray.length < BOMB_COUNT) {
                 bomb = new PIXI.Sprite(id[spriteSource[0]]);
                 bomb.position.set(xReal, yReal);
                 bomb.anchor.set(0.5,0.5);
@@ -813,7 +813,7 @@ function reCreateBoard() {
             }
             
             xReal+= trueWidth;
-            if(y == boardSize-1) {
+            if(y == BOARD_SIZE-1) {
                 yReal += trueHeight;
                 xReal = 0; 
             }
@@ -824,8 +824,8 @@ function reCreateBoard() {
     xReal = 0;
     let mineCount = 0;
     let numWarn;
-    for(let x = 0; x < boardSize; x++) {
-        for(let y = 0; y < boardSize; y++) {
+    for(let x = 0; x < BOARD_SIZE; x++) {
+        for(let y = 0; y < BOARD_SIZE; y++) {
             //place number if needed
             mineCount = getMineCount(x, y);
             if(mineCount > 0) {
@@ -844,7 +844,7 @@ function reCreateBoard() {
             cellAboveArray[x].push(cellsA);
             
             xReal+= trueWidth;
-            if(y == boardSize-1) {
+            if(y == BOARD_SIZE-1) {
                 yReal += trueHeight;
                 xReal = 0; 
             }
