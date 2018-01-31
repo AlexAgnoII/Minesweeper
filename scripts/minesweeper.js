@@ -303,13 +303,6 @@ function createBoard(row, col) {
                 bombArray.push(bomb);
             }
             
-            
-//            //above Cells
-//            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
-//            createCell(cellsA, xReal, yReal);
-//            cellOnClick(cellsA);
-//            cellAboveArray[x].push(cellsA);
-            
             //Default cells B.
             xReal+= cellsB.width;
             if(y == col-1) {
@@ -361,58 +354,58 @@ function getMineCount(x, y) {
     let count = 0;
     //check above
     if(x != 0) {
-        if(hitBomb(cellBelowArray[x-1][y])) {
+        if(hitBomb(cellBelowArray[x-1][y]) && !hitBomb(cellBelowArray[x][y])) {
             count++;
         }
     }
     
     //cehck below
     if (x != boardSize-1) {
-        if(hitBomb(cellBelowArray[x+1][y])) {
+        if(hitBomb(cellBelowArray[x+1][y])&& !hitBomb(cellBelowArray[x][y])) {
             count++;
         }
     }
     
     //check left
     if(y != 0) {
-        if(hitBomb(cellBelowArray[x][y-1])) {
+        if(hitBomb(cellBelowArray[x][y-1])&& !hitBomb(cellBelowArray[x][y])) {
             count++;
         }
     }
     
     //check right
     if(y != boardSize-1) {
-        if(hitBomb(cellBelowArray[x][y+1])) {
+        if(hitBomb(cellBelowArray[x][y+1])&& !hitBomb(cellBelowArray[x][y])) {
             count++;
         }
     }
     
     //check diagonals
     //upper left
-    if(checkDiagonals(x-1,y-1)) {
+    if(checkDiagonals(x-1,y-1, x, y)) {
         count++;
     }
     
     //upper right
-    if(checkDiagonals(x-1,y+1)) {
+    if(checkDiagonals(x-1,y+1, x, y)) {
         count++;
     }
     
     //lower left
-    if(checkDiagonals(x+1,y-1)) {
+    if(checkDiagonals(x+1,y-1, x ,y)) {
         count++;
     }
     //lower right
-    if(checkDiagonals(x+1,y+1)) {
+    if(checkDiagonals(x+1,y+1, x, y)) {
         count++;
     }    
     
     return count;
 }
-function checkDiagonals(testx, testy) {
+function checkDiagonals(testx, testy, x, y) {
     if(testx >= 0 && testx < boardSize &&
        testy >= 0 && testy < boardSize) {
-        return hitBomb(cellBelowArray[testx][testy]);
+        return hitBomb(cellBelowArray[testx][testy]) && !hitBomb(cellBelowArray[x][y]);
     }
     return false;
 }
@@ -424,7 +417,6 @@ function createCell(cell, x, y) {
 }
 
 function cellOnClick(cell) {
-//    cell.interactive = true;
     cell.on("pointerup", () => {
        charm.fadeOut(cell, 20); 
         
