@@ -18,8 +18,8 @@ let app = new PIXI.Application({
 
 //const getPos = app.renderer.plugins.interaction.mouse.global;
 
-const mineSweeperAtlas = "images/imgMineSweeper.json";
-const spriteOffSet = 1000;
+const MINE_SWEEPER_ATLAS = "images/imgMineSweeper.json";
+const SPIRTE_OFF_SET = 1000;
 const BOMB_COUNT = 10; //changine this adds/lessen bombs
 const BOARD_SIZE = 15; //dont change.
 
@@ -108,7 +108,7 @@ let textStyleNumWarn = new PIXI.TextStyle({
 
 gameDiv.appendChild(app.view);
 PIXI.loader
-.add(mineSweeperAtlas)
+.add(MINE_SWEEPER_ATLAS)
 .on("progress", loadProgressHandler)
 .load(setup);
 
@@ -121,7 +121,7 @@ function loadProgressHandler(loader, resource) {
 }
 
 function setup() {
-    id = PIXI.loader.resources[mineSweeperAtlas].textures; 
+    id = PIXI.loader.resources[MINE_SWEEPER_ATLAS].textures; 
     
 
 
@@ -181,12 +181,12 @@ function initializeTitle(){
         initializeButton(buttonStart);
         charm.slide(buttonStartContainer, 
                     buttonStartContainer.x, 
-                    buttonStartContainer.y + spriteOffSet,
+                    buttonStartContainer.y + SPIRTE_OFF_SET,
                     30)
         .onComplete = () => 
         charm.fadeOut(titleScene, 30).onComplete = () => {
-            titleLogo.x = gameWidth/2 - spriteOffSet;
-            buttonStartContainer.y = gameHeight/2 + spriteOffSet;
+            titleLogo.x = gameWidth/2 - SPIRTE_OFF_SET;
+            buttonStartContainer.y = gameHeight/2 + SPIRTE_OFF_SET;
             //titleScene.alpha = 0;
             buttonStart.texture = id[spriteSource[4]];
             state = play
@@ -204,7 +204,7 @@ function initializeTitle(){
     
     titleLogo = new PIXI.Sprite(id[spriteSource[7]]);
     titleLogo.anchor.set(0.5,0.5);
-    titleLogo.position.set(gameWidth/2 - spriteOffSet, gameHeight/2 - 50);
+    titleLogo.position.set(gameWidth/2 - SPIRTE_OFF_SET, gameHeight/2 - 50);
     titleScene.addChild(titleLogo);
     
     buttonStart = new PIXI.Sprite(id[spriteSource[4]]);
@@ -220,7 +220,7 @@ function initializeTitle(){
     textStart.anchor.set(0.5,0.5);
 
     buttonStartContainer = new PIXI.Container();
-    buttonStartContainer.position.set(gameWidth/2, gameHeight/2 + spriteOffSet);
+    buttonStartContainer.position.set(gameWidth/2, gameHeight/2 + SPIRTE_OFF_SET);
     buttonStartContainer.addChild(buttonStart);
     buttonStartContainer.addChild(textStart);
     titleScene.addChild(buttonStartContainer);
@@ -677,7 +677,7 @@ function initializeEnd(){
     gameOverScene.addChild(blackBackground);
     
     gameOverLogo = new PIXI.Sprite(id[spriteSource[5]]);
-    gameOverLogo.position.set(gameWidth/2 - spriteOffSet, gameHeight/2 - 130);
+    gameOverLogo.position.set(gameWidth/2 - SPIRTE_OFF_SET, gameHeight/2 - 130);
     gameOverLogo.anchor.set(0.5,0.5);
     gameOverScene.addChild(gameOverLogo);
     
@@ -705,7 +705,7 @@ function initializeEnd(){
                             buttonActionMain);
     
     endButtonGroup = new PIXI.Container();
-    endButtonGroup.position.set((gameWidth/2) - (buttonMain.width/2), (gameHeight/2) + spriteOffSet);
+    endButtonGroup.position.set((gameWidth/2) - (buttonMain.width/2), (gameHeight/2) + SPIRTE_OFF_SET);
     gameOverScene.addChild(endButtonGroup);
     
     tryText = new PIXI.Text("Retry", textStyle);
@@ -737,7 +737,7 @@ function initializeEnd(){
 }
 
 function resetEndNext(next) {
-    charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) + spriteOffSet, 20).onComplete = () => {
+    charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) + SPIRTE_OFF_SET, 20).onComplete = () => {
         charm.fadeOut(playScene, 20);
         charm.fadeOut(gameOverScene, 20).onComplete = () => {
             playScene.visible = false;
@@ -750,8 +750,8 @@ function resetEndNext(next) {
             time = 0;
             ctr = 0;
             timerOn = false;
-            gameOverLogo.x = gameWidth/2 - spriteOffSet;
-            endButtonGroup.y = (gameHeight/2) + spriteOffSet;   
+            gameOverLogo.x = gameWidth/2 - SPIRTE_OFF_SET;
+            endButtonGroup.y = (gameHeight/2) + SPIRTE_OFF_SET;   
             resetPlayBoard();
             reCreateBoard();
             state = next;
