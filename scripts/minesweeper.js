@@ -94,6 +94,15 @@ let textStyle = new PIXI.TextStyle({
     wordWrapWidth: 440
 });
 
+let numWarnArray = [];
+let textStyleNumWarn = new PIXI.TextStyle({
+    fontFamily: 'Sans Sarif',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    fontSize: 12,
+    fill: "0xffffff",
+});
+
 gameDiv.appendChild(app.view);
 PIXI.loader
 .add(mineSweeperAtlas)
@@ -317,10 +326,19 @@ function createBoard(row, col) {
     }
     yReal = 0;
     xReal = 0;
+    let mineCount = 0;
+    let numWarn;
     for(let x = 0; x < row; x++) {
         cellAboveArray.push([]);
         for(let y = 0; y < col; y++) {
             //place number if needed
+            mineCount = getMineCount(x, y);
+            if(mineCount > 0) {
+                numWarn = new PIXI.Text(mineCount, textStyleNumWarn);
+                numWarn.anchor.set(0.5,0.5);
+                numWarn.position.set(xReal, yReal);
+                board.addChild(numWarn);
+            }
             
             //place above cell.
             cellsA = new PIXI.Sprite(id[spriteSource[11]]);
@@ -337,6 +355,66 @@ function createBoard(row, col) {
     }
     
     console.log(bombArray);
+}
+
+function getMineCount(x, y) {
+    let count = 0;
+    //check above
+    if(x != 0) {
+        if(hitBomb(cellBelowArray[x-1][y])) {
+            count++;
+        }
+    }
+    
+    //cehck below
+    if (x != boardSize-1) {
+        if(hitBomb(cellBelowArray[x+1][y])) {
+            count++;
+        }
+    }
+    
+    //check left
+    if(y != 0) {
+        if(hitBomb(cellBelowArray[x][y-1])) {
+            count++;
+        }
+    }
+    
+    //check right
+    if(y != boardSize-1) {
+        if(hitBomb(cellBelowArray[x][y+1])) {
+            count++;
+        }
+    }
+    
+    //check diagonals
+    //upper left
+    if(checkDiagonals(x-1,y-1)) {
+        count++;
+    }
+    
+    //upper right
+    if(checkDiagonals(x-1,y+1)) {
+        count++;
+    }
+    
+    //lower left
+    if(checkDiagonals(x+1,y-1)) {
+        count++;
+    }
+    //lower right
+    if(checkDiagonals(x+1,y+1)) {
+        count++;
+    }    
+    
+    return count;
+}
+function checkDiagonals(testx, testy) {
+    if(testx >= 0 && testx < boardSize &&
+       testy >= 0 && testy < boardSize) {
+        return hitBomb(cellBelowArray[testx][testy]);
+    }
+    return false;
 }
 
 function createCell(cell, x, y) {
@@ -553,7 +631,6 @@ function reCreateBoard() {
                 bombArray.push(bomb);
             }
             
-            
             //above Cells
             cellsA = new PIXI.Sprite(id[spriteSource[11]]);
             createCell(cellsA, xReal, yReal);
@@ -571,7 +648,6 @@ function reCreateBoard() {
     
     console.log(bombArray);
     console.log(cellAboveArray);
-    
 }
 
 function end(){
@@ -584,8 +660,6 @@ function end(){
         .onComplete = () => {
             charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20, 20);
             console.log("i happened")
-
-            playScene.position.set(0,0);
         }
     }
 
