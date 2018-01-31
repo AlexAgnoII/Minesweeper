@@ -61,7 +61,8 @@ let playBG,
     bombText;
 
 //All about the end
-let winText,
+let didWin = false,
+    winText,
     tryText,
     mainText,
     gameOverLogo,
@@ -75,8 +76,6 @@ let titleScene,
     gameOverScene;
 
 let wayPoints = [[0,0],
-                 [5,0],
-                 [-5,0],
                  [10,0],
                  [-10,0],
                  [0,0]];
@@ -438,6 +437,7 @@ function cellOnClick(cell) {
                    bombText.text = currentBombCount;
                    
                    if(currentBombCount == 0) {
+                       didWin = true;
                        state = end;
                    }
                }
@@ -452,7 +452,8 @@ function cellOnClick(cell) {
             //if Hit, game over!
            if(hitBomb(cell)) {
                //Exploding shaking effect
-               charm.walkPath(playScene, wayPoints, 10, 'linear').onComplete = () => {
+               charm.walkPath(playScene, wayPoints, 15).onComplete = () => {
+              
                    dissapearCellAbove();
                };
                state = end;
@@ -597,16 +598,16 @@ function initializeEnd(){
     mainText.position.set(buttonMain.x, buttonMain.y);
     mainText.anchor.set(0.5,0.5);
     
-    
-    
-    
-    
-
     endButtonGroup.addChild(buttonRetry);
     endButtonGroup.addChild(buttonMain);
     endButtonGroup.addChild(tryText);
     endButtonGroup.addChild(mainText);
     
+    winText = new PIXI.Text("Congratulations, you win!", textStyle);
+    winText.anchor.set(0.5,0.5);
+    winText.alpha = 0;
+    winText.position.set(gameWidth/2, gameHeight/2 - 70);
+    gameOverScene.addChild(winText);
 
     
     
@@ -625,6 +626,8 @@ function resetEndNext(next) {
             //playScene.alpha = 0;
             timeText.text = "0:00";
             bombText.text = bombCount;
+            winText.alpha = 0;
+            didWin = false;
             minuteElapse = 0;
             time = 0;
             ctr = 0;
@@ -741,8 +744,10 @@ function end(){
         makeCellsClickable(false); //disabled clickableness of above cells
         charm.slide(gameOverLogo, gameWidth/2, gameOverLogo.y, 20)
         .onComplete = () => {
+            playScene.position.set(0,0);
             charm.slide(endButtonGroup, endButtonGroup.x, (gameHeight/2) - 20, 20);
-            console.log("i happened")
+            if(didWin)
+                charm.fadeIn(winText, 30);
         }
     }
 
