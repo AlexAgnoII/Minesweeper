@@ -1,3 +1,6 @@
+/*
+Author: Alexander H. Agno II
+*/
 "use strict";
 
 let gameDiv = document.getElementById("game");
@@ -153,7 +156,7 @@ function timer() {
     ctr++;
     if(ctr == 60) {
         time++;
-        console.log(time);
+        //console.log(time);
         ctr = 0;
         
         if(time < 10) {
@@ -173,7 +176,7 @@ function timer() {
 function initializeTitle(){
     //This button action serves as the "transition" for title -> play
     let buttonAction = function() {
-        console.log("Play!");
+        //console.log("Play!");
         //reset and send to 'play'
         initializeButton(buttonStart);
         charm.slide(buttonStartContainer, 
@@ -349,7 +352,7 @@ function createBoard(row, col) {
         }
     }
     
-    console.log(bombArray);
+    //console.log(bombArray);
 }
 
 function getMineCount(x, y) {
@@ -428,10 +431,10 @@ function cellOnClick(cell) {
            
            if(hitBomb(cell)) {
                if(alreadyFound(cell.x, cell.y)) {
-                   console.log("Already found.");
+                   //console.log("Already found.");
                }
                else {
-                   console.log("not found");
+                  // console.log("not found");
                    bombFoundArray.push(cell);
                    currentBombCount--;
                    bombText.text = currentBombCount;
@@ -443,7 +446,7 @@ function cellOnClick(cell) {
                }
            }
            
-           console.log(currentBombCount);
+           //console.log(currentBombCount);
        }
        //left click
        else {
@@ -485,14 +488,14 @@ function findCellAndGiveIndex(cellX, cellY) {
 
 //reveals all adjacent part except numbers or bombs
 function reveal(x, y, cell) {
-    console.log(x +"|" + y)
+    //console.log(x +"|" + y)
     if(!hitNum(cell)) {
         //top
         if(x != 0) {
             if(!hitNum(cellAboveArray[x-1][y])) {
                 if(cellAboveArray[x-1][y].alpha != 0) {
                     charm.fadeOut(cellAboveArray[x-1][y], 20);
-                    console.log("do top")
+                    //console.log("do top")
                 }
                     
             }
@@ -503,7 +506,7 @@ function reveal(x, y, cell) {
             if(!hitNum(cellAboveArray[x+1][y])) {
                 if(cellAboveArray[x+1][y].alpha != 0) {
                     charm.fadeOut(cellAboveArray[x+1][y], 20);
-                    console.log("down top")
+                    //console.log("down top")
                 }
             }
         }
@@ -513,7 +516,7 @@ function reveal(x, y, cell) {
             if(!hitNum(cellAboveArray[x][y+1])) {
                 if(cellAboveArray[x][y+1].alpha != 0) {
                     charm.fadeOut(cellAboveArray[x][y+1], 20);
-                    console.log("do right")
+                   // console.log("do right")
                 }
             }
         }
@@ -523,7 +526,7 @@ function reveal(x, y, cell) {
            if(!hitNum(cellAboveArray[x][y-1])) {
                if(cellAboveArray[x][y-1].alpha != 0) {
                    charm.fadeOut(cellAboveArray[x][y-1], 20);
-                   console.log("do left")    
+                   //console.log("do left")    
                }
             }
         }
@@ -534,7 +537,7 @@ function reveal(x, y, cell) {
         if(checkDiagonalsNum(x-1, y-1)) {
             if(cellAboveArray[x-1][y-1].alpha !=0) {
                 charm.fadeOut(cellAboveArray[x-1][y-1], 20);
-                console.log("upper left") 
+               // console.log("upper left") 
             }
         }
         
@@ -542,7 +545,7 @@ function reveal(x, y, cell) {
         if(checkDiagonalsNum(x-1, y+1)) {
             if(cellAboveArray[x-1][y+1].alpha !=0) {
                 charm.fadeOut(cellAboveArray[x-1][y+1], 20);
-                console.log("upper right") 
+                //console.log("upper right") 
             }
         }
         
@@ -550,7 +553,7 @@ function reveal(x, y, cell) {
         if(checkDiagonalsNum(x+1, y-1)) {
             if(cellAboveArray[x+1][y-1].alpha !=0) {
                 charm.fadeOut(cellAboveArray[x+1][y-1], 20);
-                console.log("lower left") 
+               // console.log("lower left") 
             }
         }
         
@@ -558,7 +561,7 @@ function reveal(x, y, cell) {
         if(checkDiagonalsNum(x+1, y+1)) {
             if(cellAboveArray[x+1][y+1].alpha !=0) {
                 charm.fadeOut(cellAboveArray[x+1][y+1], 20);
-                console.log("lower right") 
+               // console.log("lower right") 
             }
         }
         
@@ -780,10 +783,10 @@ function resetPlayBoard() {
         bombFoundArray.splice(0, 1);
     }
     
-    console.log(cellAboveArray);
-    console.log(bombArray.length);
-    console.log(numWarnArray.length);
-    console.log(bombFoundArray.length);
+//    console.log(cellAboveArray);
+//    console.log(bombArray.length);
+//    console.log(numWarnArray.length);
+//    console.log(bombFoundArray.length);
 }
 
 //recraetas board by setting bomb and upper layer
@@ -883,7 +886,7 @@ function activateButton(button) {
 
 function buttonUp(sprite, textureUP, textureOver, action) {
     sprite.isDown = false;
-    console.log("Is up");
+    //console.log("Is up");
     
     if(sprite.isOver) {
         sprite.texture = textureOver;
@@ -895,17 +898,17 @@ function buttonUp(sprite, textureUP, textureOver, action) {
 }
 function buttonHover(sprite, texture) {
     sprite.isOver = true;
-    console.log("Is hover");
+    //console.log("Is hover");
     sprite.texture = texture;    
 }
 function buttonDown(sprite, texture) {
     sprite.isDown = true;
-    console.log("Is down");
+    //console.log("Is down");
     sprite.texture = texture;
 }
 function buttonOut(sprite, texture) {
     sprite.isOver = false;
-    console.log("Is out");
+    //console.log("Is out");
     sprite.texture = texture;
 }
                                                           
@@ -925,12 +928,12 @@ function addButtonActionListener(button,
 }
 
 
-function test(sprite) {
-    console.log("Up: " + !sprite.isDown)
-    console.log("Down: " + sprite.isDown)
-    console.log("Over: " + sprite.isOver)
-    console.log("Out: " + !sprite.isOver)
-    console.log("....")
-}
+//function test(sprite) {
+//    console.log("Up: " + !sprite.isDown)
+//    console.log("Down: " + sprite.isDown)
+//    console.log("Over: " + sprite.isOver)
+//    console.log("Out: " + !sprite.isOver)
+//    console.log("....")
+//}
 
 
