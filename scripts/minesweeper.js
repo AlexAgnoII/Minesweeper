@@ -56,6 +56,7 @@ let playBG,
     cellBelowArray = [],
     cellAboveArray = [],
     bombArray = [],
+    bombFoundArray =[],
     timeText,
     bombText;
 
@@ -329,8 +330,10 @@ function createBoard(row, col) {
             if(mineCount > 0) {
                 numWarn = new PIXI.Text(mineCount, textStyleNumWarn);
                 numWarn.anchor.set(0.5,0.5);
+                numWarn.alpha = 0;
                 numWarn.position.set(xReal, yReal);
                 board.addChild(numWarn);
+                numWarnArray.push(numWarn);
             }
             
             //place above cell.
@@ -418,26 +421,62 @@ function createCell(cell, x, y) {
 
 function cellOnClick(cell) {
     cell.on("pointerup", () => {
-       charm.fadeOut(cell, 20); 
-        
-        //if Hit, game over!
-       if(hitBomb(cell)) {
-           //Exploding shaking effect
-           charm.walkPath(playScene, wayPoints, 10, 'linear');
-           state = end;
+       
+        //if its a right click (Not Stable)
+       if(event.button == 2 || event.button == 3) {
+           let currentBombCount;
+           currentBombCount = parseInt(bombText.text);
+           
+           if(hitBomb(cell)) {
+               if(alreadyFound(cell.x, cell.y)) {
+                   console.log("Already found.");
+               }
+               else {
+                   console.log("not found");
+                   bombFoundArray.push(cell);
+                   currentBombCount--;
+                   bombText.text = currentBombCount;
+                   
+                   if(currentBombCount == 0) {
+                       state = end;
+                   }
+               }
+           }
+           
+           console.log(currentBombCount);
        }
-        
-       //if not, show other tiles.
+       //left click
        else {
-           reveal();
+           charm.fadeOut(cell, 20); 
+
+            //if Hit, game over!
+           if(hitBomb(cell)) {
+               //Exploding shaking effect
+               charm.walkPath(playScene, wayPoints, 10, 'linear').onComplete = () => {
+                   dissapearCellAbove();
+               };
+               state = end;
+           }
+
+           //if not, show other tiles.
+           else {
+
+           }
        }
-        
     });
 }
 
-function reveal() {
+function alreadyFound(x, y) {
     
+    for(let i = 0; i < bombFoundArray.length; i++) {
+        if(bombFoundArray[i].x == x &&
+           bombFoundArray[i].y == y) {
+            return true;
+        }
+    }
+    return false;
 }
+
 
 function hitBomb(cell) {
     for(let i = 0; i < bombArray.length; i++) {
@@ -457,12 +496,28 @@ function play() {
         charm.fadeIn(playScene, 20).onComplete = () => {
             timerOn = true;
             reApearBomb(); //change bomb's alpha to 1
+            reApearNum();
             makeCellsClickable(true);
         }
     }
     
     if(timerOn)
         timer();
+}
+
+//makes all cells above invisible when game is over.
+function dissapearCellAbove() {
+    for(let x = 0 ; x < boardSize;x++) {
+        for(let y = 0; y < boardSize; y++) {
+            cellAboveArray[x][y].alpha = 0;
+        }
+    }
+}
+
+function reApearNum() {
+    for(let i = 0; i < numWarnArray.length; i++) {
+        numWarnArray[i].alpha = 1;
+    }
 }
 
 function makeCellsClickable(isClickable) {
@@ -569,6 +624,7 @@ function resetEndNext(next) {
             playScene.visible = false;
             //playScene.alpha = 0;
             timeText.text = "0:00";
+            bombText.text = bombCount;
             minuteElapse = 0;
             time = 0;
             ctr = 0;
@@ -596,8 +652,20 @@ function resetPlayBoard() {
             cellAboveArray[x].splice(0, 1);
         }
     }
+    
+    while(numWarnArray.length > 0) {
+        board.removeChild(numWarnArray[0]);
+        numWarnArray.splice(0, 1);
+    }
+    
+    while(bombFoundArray.length > 0) {
+        bombFoundArray.splice(0, 1);
+    }
+    
     console.log(cellAboveArray);
     console.log(bombArray.length);
+    console.log(numWarnArray.length);
+    console.log(bombFoundArray.length);
 }
 
 //recraetas board by setting bomb and upper layer
@@ -623,13 +691,6 @@ function reCreateBoard() {
                 bombArray.push(bomb);
             }
             
-            //above Cells
-            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
-            createCell(cellsA, xReal, yReal);
-            cellOnClick(cellsA);
-            cellAboveArray[x].push(cellsA);
-            
-            //Default cells B.
             xReal+= trueWidth;
             if(y == boardSize-1) {
                 yReal += trueHeight;
@@ -638,8 +699,38 @@ function reCreateBoard() {
         }
     }
     
-    console.log(bombArray);
-    console.log(cellAboveArray);
+    yReal = 0;
+    xReal = 0;
+    let mineCount = 0;
+    let numWarn;
+    for(let x = 0; x < boardSize; x++) {
+        for(let y = 0; y < boardSize; y++) {
+            //place number if needed
+            mineCount = getMineCount(x, y);
+            if(mineCount > 0) {
+                numWarn = new PIXI.Text(mineCount, textStyleNumWarn);
+                numWarn.anchor.set(0.5,0.5);
+                numWarn.alpha = 0;
+                numWarn.position.set(xReal, yReal);
+                board.addChild(numWarn);
+                numWarnArray.push(numWarn);
+            }
+            
+            //place above cell.
+            cellsA = new PIXI.Sprite(id[spriteSource[11]]);
+            createCell(cellsA, xReal, yReal);
+            cellOnClick(cellsA);
+            cellAboveArray[x].push(cellsA);
+            
+            xReal+= trueWidth;
+            if(y == boardSize-1) {
+                yReal += trueHeight;
+                xReal = 0; 
+            }
+        }
+    }
+//    console.log(bombArray);
+//    console.log(cellAboveArray);
 }
 
 function end(){
