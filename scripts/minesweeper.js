@@ -20,7 +20,7 @@ let app = new PIXI.Application({
 
 const MINE_SWEEPER_ATLAS = "images/imgMineSweeper.json";
 const SPIRTE_OFF_SET = 1000;
-const BOMB_COUNT = 10; //changine this adds/lessen bombs
+const BOMB_COUNT = 15; //changine this adds/lessen bombs
 const BOARD_SIZE = 15; //dont change.
 
 let id, 
@@ -144,9 +144,9 @@ function setCanvasSize() {
 
 
 function gameLoop() {
-    //console.log(getPos);
     state();
     charm.update();
+    
 }
 
 let time = 0;
@@ -227,6 +227,7 @@ function initializeTitle(){
     
     titleScene.visible = false;
 }
+
 function title() {
     if(!titleScene.visible) {
         playScene.visible = false;
@@ -419,6 +420,10 @@ function createCell(cell, x, y) {
     cell.position.set(x,y);
     cell.anchor.set(0.5,0.5);
     board.addChild(cell);
+    cell.upVisited = false;
+    cell.downVisited = false;
+    cell.leftVisited = false;
+    cell.rightVisited = false;
 }
 
 function cellOnClick(cell) {
@@ -456,7 +461,6 @@ function cellOnClick(cell) {
            if(hitBomb(cell)) {
                //Exploding shaking effect
                charm.walkPath(playScene, wayPoints, 15).onComplete = () => {
-              
                    dissapearCellAbove();
                };
                state = end;
@@ -465,7 +469,7 @@ function cellOnClick(cell) {
            //if not, show other tiles.
            else {
                 let theIndex = findCellAndGiveIndex(cell.x, cell.y);
-                reveal(theIndex[0], theIndex[1], cell);
+                reveal(theIndex[0], theIndex[1]);
            }
        }
     });
@@ -486,85 +490,50 @@ function findCellAndGiveIndex(cellX, cellY) {
     }    
 }
 
-//reveals all adjacent part except numbers or bombs
-function reveal(x, y, cell) {
-    //console.log(x +"|" + y)
-    if(!hitNum(cell)) {
-        //top
-        if(x != 0) {
-            if(!hitNum(cellAboveArray[x-1][y])) {
-                if(cellAboveArray[x-1][y].alpha != 0) {
-                    charm.fadeOut(cellAboveArray[x-1][y], 20);
-                    //console.log("do top")
-                }
-                    
+
+//reveals all blank till numbers r found
+function reveal(x, y) {
+
+    
+    if((x >= 0 && x < BOARD_SIZE) &&
+       (y >= 0 && y < BOARD_SIZE)) {
+        let cell = cellAboveArray[x][y];
+            
+        cell.alpha = 0;
+        if(!hitNum(cell)) {
+            
+            //top
+            if(cell.upVisited == false) {
+                cell.upVisited = true;
+                reveal(x+1, y);
             }
+
+            //down
+            if(cell.downVisited == false) {
+                cell.downVisited = true;
+                reveal(x-1, y);         
+            }
+
+            //right
+            if(cell.rightVisited == false) {
+                cell.rightVisited = true;
+                reveal(x, y+1);     
+            }
+
+            //left
+            if(cell.leftVisited == false) {
+                cell.leftVisited = true;
+                reveal(x, y-1);
+            }
+
+        }
+        else {
+            return;
         }
         
-        //down
-        if(x != BOARD_SIZE-1) {
-            if(!hitNum(cellAboveArray[x+1][y])) {
-                if(cellAboveArray[x+1][y].alpha != 0) {
-                    charm.fadeOut(cellAboveArray[x+1][y], 20);
-                    //console.log("down top")
-                }
-            }
-        }
-        
-        //right
-        if(y != BOARD_SIZE-1) {
-            if(!hitNum(cellAboveArray[x][y+1])) {
-                if(cellAboveArray[x][y+1].alpha != 0) {
-                    charm.fadeOut(cellAboveArray[x][y+1], 20);
-                   // console.log("do right")
-                }
-            }
-        }
-        
-        //left
-        if(y != 0) {
-           if(!hitNum(cellAboveArray[x][y-1])) {
-               if(cellAboveArray[x][y-1].alpha != 0) {
-                   charm.fadeOut(cellAboveArray[x][y-1], 20);
-                   //console.log("do left")    
-               }
-            }
-        }
-        
-        //diagonals
-        
-        //top left
-        if(checkDiagonalsNum(x-1, y-1)) {
-            if(cellAboveArray[x-1][y-1].alpha !=0) {
-                charm.fadeOut(cellAboveArray[x-1][y-1], 20);
-               // console.log("upper left") 
-            }
-        }
-        
-        //top right
-        if(checkDiagonalsNum(x-1, y+1)) {
-            if(cellAboveArray[x-1][y+1].alpha !=0) {
-                charm.fadeOut(cellAboveArray[x-1][y+1], 20);
-                //console.log("upper right") 
-            }
-        }
-        
-        //lower left
-        if(checkDiagonalsNum(x+1, y-1)) {
-            if(cellAboveArray[x+1][y-1].alpha !=0) {
-                charm.fadeOut(cellAboveArray[x+1][y-1], 20);
-               // console.log("lower left") 
-            }
-        }
-        
-        //down right
-        if(checkDiagonalsNum(x+1, y+1)) {
-            if(cellAboveArray[x+1][y+1].alpha !=0) {
-                charm.fadeOut(cellAboveArray[x+1][y+1], 20);
-               // console.log("lower right") 
-            }
-        }
-        
+    }
+    else {
+        return;
     }
 }
 
@@ -577,13 +546,7 @@ function hitNum(cell) {
     }
     return false;
 }
-function checkDiagonalsNum(testx, testy) {
-    if(testx >= 0 && testx < BOARD_SIZE &&
-       testy >= 0 && testy < BOARD_SIZE) {
-        return !hitNum(cellAboveArray[testx, testy]);
-    }
-    return false;
-}
+
 
 function alreadyFound(x, y) {
     
