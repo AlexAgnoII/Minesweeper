@@ -148,7 +148,6 @@ function gameLoop() {
     console.log(bombArray.length);
     state();
     charm.update();
-
     
 }
 
@@ -283,17 +282,15 @@ function initializePlay(){
     timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
     playScene.addChild(timeText);
     
-    bombText = new PIXI.Text(BOMB_COUNT, textStyle);
-    bombText.position.set(gameWidth/2 + 120, timeText.y);
-    playScene.addChild(bombText);
-
-    
     /* Initialize board and its cells */
     board = new PIXI.Container();
     createBoard(BOARD_SIZE, BOARD_SIZE);
     board.position.set(gameWidth/2 - board.width/2 + 10, gameHeight/2 - board.height/2 - 20);
     playScene.addChild(board);
     
+    bombText = new PIXI.Text(bombArray.length, textStyle);
+    bombText.position.set(gameWidth/2 + 120, timeText.y);
+    playScene.addChild(bombText);
     
     
     //creates the waypoins for shaking
@@ -348,7 +345,7 @@ function createBoard(row, col) {
                 trueWidth = cellsB.width;
             }
         }
-    }
+    }    
     yReal = 0;
     xReal = 0;
     let mineCount = 0;
@@ -757,7 +754,6 @@ function resetEndNext(next) {
             allow = false;
             endCounter = 0;
             timeText.text = "0:00";
-            bombText.text = BOMB_COUNT;
             winText.alpha = 0;
             didWin = false;
             minuteElapse = 0;
@@ -768,6 +764,7 @@ function resetEndNext(next) {
             endButtonGroup.y = (gameHeight/2) + SPIRTE_OFF_SET;   
             resetPlayBoard();
             reCreateBoard();
+            bombText.text = bombArray.length;
             state = next;
         };
     }
