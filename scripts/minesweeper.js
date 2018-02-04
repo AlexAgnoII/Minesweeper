@@ -20,7 +20,7 @@ let app = new PIXI.Application({
 
 const MINE_SWEEPER_ATLAS = "images/imgMineSweeper.json";
 const SPIRTE_OFF_SET = 1000;
-const BOMB_COUNT = 15; //changine this adds/lessen bombs (this is maximum count of bombs.)
+const BOMB_COUNT = 20; //changine this adds/lessen bombs (this is maximum count of bombs.)
 const BOARD_SIZE = 15; //dont change.
 const WAY_POINT_SHAKE = 10;
 const SHAKE_MAX = 5;
@@ -279,7 +279,7 @@ function initializePlay(){
     
     
     timeText = new PIXI.Text("0:00", textStyle);
-    timeText.position.set(gameWidth/2 - 120, gameHeight/2 + 160);
+    timeText.position.set(gameWidth/2 - /*120*/ 110, gameHeight/2 + 160);
     playScene.addChild(timeText);
     
     /* Initialize board and its cells */
