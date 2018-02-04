@@ -22,6 +22,9 @@ const MINE_SWEEPER_ATLAS = "images/imgMineSweeper.json";
 const SPIRTE_OFF_SET = 1000;
 const BOMB_COUNT = 15; //changine this adds/lessen bombs (this is maximum count of bombs.)
 const BOARD_SIZE = 15; //dont change.
+const WAY_POINT_SHAKE = 10;
+const SHAKE_MAX = 5;
+const SHAKE_SPEED = 20;
 
 let id, 
     spriteSource = ["asset_bomb.png",             //0
@@ -78,10 +81,8 @@ let titleScene,
     playScene,
     gameOverScene;
 
-let wayPoints = [[0,0],
-                 [10,0],
-                 [-10,0],
-                 [0,0]];
+let wayPoints = [];
+let shake;
 
 
 let state;
@@ -147,6 +148,7 @@ function gameLoop() {
     console.log(bombArray.length);
     state();
     charm.update();
+
     
 }
 
@@ -170,6 +172,30 @@ function timer() {
             minuteElapse++;
             time = 0;
             timeText.text = minuteElapse + ":00";
+        }
+    }
+}
+
+function createShakeWayPoints() {
+    let alternate = true;
+    
+    
+    for(let i = 0; i < WAY_POINT_SHAKE; i++) {
+        
+        if(i == 0 || i == WAY_POINT_SHAKE - 1) {
+            wayPoints.push([0,0]);
+        }
+        
+        else {
+            if(alternate) {
+               wayPoints.push([SHAKE_MAX,0]);  
+                alternate = false;
+            }
+            else {
+                wayPoints.push([-SHAKE_MAX,0]);
+                alternate = true;
+            }
+
         }
     }
 }
@@ -270,7 +296,8 @@ function initializePlay(){
     
     
     
-    
+    //creates the waypoins for shaking
+    createShakeWayPoints();
     playScene.visible = false;
 }
 
@@ -461,10 +488,9 @@ function cellOnClick(cell) {
             //if Hit, game over!
            if(hitBomb(cell)) {
                //Exploding shaking effect
-               charm.walkPath(playScene, wayPoints, 15).onComplete = () => {
-                   dissapearCellAbove();
-               };
-               state = end;
+               timerOn = false;
+               shake = charm.walkPath(playScene, wayPoints, SHAKE_SPEED, 'linear');
+               console.log(shake);
            }
 
            //if not, show other tiles.
@@ -572,6 +598,8 @@ function hitBomb(cell) {
 }
 
 let timerOn = false;
+let endCounter = 0;
+let allow = false;
 function play() {
     if(!playScene.visible ) {
         titleScene.visible = false;
@@ -582,18 +610,38 @@ function play() {
             reApearBomb(); //change bomb's alpha to 1
             reApearNum();
             makeCellsClickable(true);
+            allow = true;
         }
     }
     
-    if(timerOn)
+    if(timerOn) {
         timer();
+    }
+    else {
+        if(allow) {
+            endCounter++;
+
+            if(endCounter == SHAKE_SPEED + 12) {
+                state = end; 
+                dissapearCellAbove();
+            }
+
+        }
+
+    }
+
 }
 
 //makes all cells above invisible when game is over.
 function dissapearCellAbove() {
     for(let x = 0 ; x < BOARD_SIZE;x++) {
         for(let y = 0; y < BOARD_SIZE; y++) {
-            cellAboveArray[x][y].alpha = 0;
+            
+            for(let i = 0; i < bombArray.length; i++) {
+                if(bombArray[i].x == cellAboveArray[x][y].x &&
+                   bombArray[i].y == cellAboveArray[x][y].y)
+                        charm.fadeOut(cellAboveArray[x][y]);
+            }
         }
     }
 }
@@ -693,7 +741,6 @@ function initializeEnd(){
     gameOverScene.addChild(winText);
 
     
-    
 
     
     
@@ -707,6 +754,8 @@ function resetEndNext(next) {
         charm.fadeOut(gameOverScene, 20).onComplete = () => {
             playScene.visible = false;
             //playScene.alpha = 0;
+            allow = false;
+            endCounter = 0;
             timeText.text = "0:00";
             bombText.text = BOMB_COUNT;
             winText.alpha = 0;
