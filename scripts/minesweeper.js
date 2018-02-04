@@ -20,7 +20,7 @@ let app = new PIXI.Application({
 
 const MINE_SWEEPER_ATLAS = "images/imgMineSweeper.json";
 const SPIRTE_OFF_SET = 1000;
-const BOMB_COUNT = 15; //changine this adds/lessen bombs
+const BOMB_COUNT = 15; //changine this adds/lessen bombs (this is maximum count of bombs.)
 const BOARD_SIZE = 15; //dont change.
 
 let id, 
@@ -144,6 +144,7 @@ function setCanvasSize() {
 
 
 function gameLoop() {
+    console.log(bombArray.length);
     state();
     charm.update();
     
@@ -499,7 +500,8 @@ function reveal(x, y) {
        (y >= 0 && y < BOARD_SIZE)) {
         let cell = cellAboveArray[x][y];
             
-        cell.alpha = 0;
+        //cell.alpha = 0;
+        charm.fadeOut(cell, 20);
         if(!hitNum(cell)) {
             
             //top
